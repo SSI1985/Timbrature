@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Timbrature">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Timbrature</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space&#43;Grotesk:wght@500;600;700&amp;display=swap">
+<style>
+  :root {
+    --ink: #15181C; --muted: #5B616B; --soft: #3D434B; --ground: #F4F5F2; --card: #FFFFFF; --line: #E2E4DF;
+    --blue: #2147C5; --blue-dark: #16328F; --blue-tint: #EAF0FF; --orange: #C2410C; --orange-dark: #9A3412; --orange-tint: #FFF1E8;
+    --grey-tint: #EEF0EC; --border-input: #AEB4BD;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--ground); color: var(--ink); font-family: Inter, system-ui, -apple-system, sans-serif; -webkit-text-size-adjust: 100%; }
+  button, input, textarea { font-family: inherit; }
+  button { cursor: pointer; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  #app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding: 22px 20px calc(24px + env(safe-area-inset-bottom)); gap: 16px; }
+  h1 { margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 30px; font-weight: 600; line-height: 1.1; }
+  h2 { margin: 0; font-size: 16px; font-weight: 600; }
+  p { margin: 0; }
+  .muted { color: var(--muted); }
+  .etichetta { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+  .riga { display: flex; align-items: center; gap: 10px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; border-radius: 999px; padding: 6px 11px; align-self: flex-start; }
+  .chip-blu { background: var(--blue-tint); color: var(--blue-dark); }
+  .chip-arancio { background: var(--orange-tint); color: var(--orange-dark); }
+  .chip-verde { background: #E3F4EA; color: #146C3A; }
+  .chip-rosso { background: #FDE8E7; color: #B42318; }
+  .avviso { display: flex; gap: 10px; align-items: flex-start; border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 1.4; }
+  .avviso-blu { background: var(--blue-tint); color: var(--blue-dark); }
+  .avviso-arancio { background: var(--orange-tint); color: var(--orange-dark); }
+  .btn { height: 56px; border-radius: 14px; border: none; font-size: 17px; font-weight: 600; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .btn-blu { background: var(--blue); color: #fff; }
+  .btn-nero { background: var(--ink); color: #fff; }
+  .btn-bordo { background: #fff; color: var(--ink); border: 1px solid #C9CDD3; height: 52px; font-size: 16px; }
+  .btn-testo { background: transparent; color: var(--blue); height: 44px; font-size: 15px; }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .link { background: none; border: none; color: var(--blue); font-size: 15px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; padding: 0 4px; }
+  .campo { display: flex; flex-direction: column; gap: 8px; }
+  .campo label, .campo .lbl { font-size: 14px; font-weight: 600; }
+  .input { height: 48px; border-radius: 12px; border: 1px solid var(--border-input); background: #fff; padding: 0 14px; font-size: 16px; color: var(--ink); width: 100%; }
+  textarea.input { height: auto; padding: 12px 14px; resize: none; }
+  .input-codice { height: 60px; font-size: 26px; letter-spacing: .35em; text-align: center; }
+  .scelte { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .pillole { display: flex; flex-wrap: wrap; gap: 8px; }
+  .scelta { min-height: 46px; border-radius: 12px; border: 1px solid var(--ink); background: #fff; color: var(--ink); font-size: 15px; font-weight: 600; padding: 0 14px; }
+  .pillola { border-radius: 999px; min-height: 44px; }
+  .scelta[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .celle { display: grid; gap: 8px; }
+  .cella { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .cella span:first-child { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .cella .orario { font-family: 'Space Grotesk', Inter, sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .centro { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 8px 0; }
+  .tondo { width: 190px; height: 190px; border-radius: 50%; border: none; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+  .tondo span { font-family: 'Space Grotesk', Inter, sans-serif; font-size: 25px; font-weight: 600; line-height: 1.1; white-space: pre-line; }
+  .tondo-blu { background: var(--blue); box-shadow: 0 12px 28px rgba(33,71,197,.3); }
+  .tondo-nero { background: var(--ink); box-shadow: 0 12px 28px rgba(21,24,28,.25); }
+  .icona-tonda { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: none; }
+  .icona-piccola { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: none; }
+  .blu-tinta { background: var(--blue-tint); color: var(--blue); }
+  .arancio-tinta { background: var(--orange-tint); color: var(--orange); }
+  .stato-reg { align-self: flex-start; font-size: 13px; font-weight: 600; letter-spacing: .02em; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; }
+  .centro .stato-reg { align-self: center; }
+  .stato-run { background: var(--blue-tint); color: var(--blue); }
+  .stato-ok { background: var(--blue-tint); color: var(--blue); }
+  .stato-ko { background: var(--orange-tint); color: var(--orange); }
+  .controllo { display: flex; align-items: center; gap: 14px; }
+  .controllo .cerchio { width: 44px; height: 44px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .st-ok .cerchio, .st-run .cerchio { background: var(--blue-tint); color: var(--blue); }
+  .st-wait .cerchio { background: var(--grey-tint); color: #AEB4BD; }
+  .st-fail .cerchio, .st-warn .cerchio { background: var(--orange-tint); color: var(--orange); }
+  .controllo b { display: block; font-size: 17px; font-weight: 600; }
+  .controllo small { display: block; font-size: 15px; color: var(--muted); }
+  .grande { font-family: 'Space Grotesk', Inter, sans-serif; font-size: 60px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+  .settimana div { display: flex; justify-content: space-between; align-items: center; min-height: 28px; font-size: 15px; }
+  .settimana span:last-child { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .elenco { margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.45; color: var(--soft); }
+  .elenco li + li { margin-top: 4px; }
+  .numero { width: 26px; height: 26px; flex: none; border-radius: 50%; background: var(--ink); color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .mirino { flex: 1; min-height: 260px; border-radius: 20px; background: #22262C; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: #C9CDD3; font-size: 14px; }
+  .mirino div { width: 150px; height: 195px; border: 3px dashed #AEB4BD; border-radius: 50%; }
+  .spinner { animation: ruota .9s linear infinite; }
+  .pulsa { animation: pulsa 1.4s ease-in-out infinite; }
+  @keyframes ruota { to { transform: rotate(360deg); } }
+  @keyframes pulsa { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+  .spazio { flex: 1; }
+  .errore { color: var(--orange-dark); font-size: 14px; font-weight: 600; }
+  .piede { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; font-size: 14px; color: var(--muted); }
+  .piede a { color: var(--blue); }
+  .mesi { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .mesi .titolo-mese { font-family: 'Space Grotesk', Inter, sans-serif; font-size: 22px; font-weight: 600; text-transform: capitalize; text-align: center; flex: 1; }
+  .freccia { width: 44px; height: 44px; border-radius: 12px; border: 1px solid #C9CDD3; background: #fff; color: var(--ink); display: flex; align-items: center; justify-content: center; flex: none; }
+  .freccia:disabled { opacity: .35; cursor: default; }
+  .totali { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .totali div { display: flex; flex-direction: column; gap: 2px; }
+  .totali b { font-family: 'Space Grotesk', Inter, sans-serif; font-size: 22px; font-weight: 600; }
+  .giorno { display: flex; flex-direction: column; gap: 8px; }
+  .giorno .orari { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; font-size: 14px; }
+  .giorno .orari span { color: var(--muted); }
+  .giorno .orari strong { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .chip-grigio { background: var(--grey-tint); color: var(--soft); }
+  .segn { display: flex; flex-direction: column; gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .segn-apri { display: flex; align-items: center; gap: 10px; width: 100%; background: none; border: 0; padding: 4px 0; min-height: 36px; font: inherit; color: inherit; cursor: pointer; }
+  .pallino-rosso { background: #D92D20; color: #fff; font-size: 13px; font-weight: 700; border-radius: 999px; padding: 4px 10px; }
+  .segn-freccia { font-size: 22px; line-height: 1; color: var(--soft); transform: rotate(90deg); transition: transform .15s; }
+  .segn-freccia.su { transform: rotate(-90deg); }
+  .segn-testa { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .btn-secondario { background: #fff; color: var(--ink); border: 1px solid #C9CDD3; height: 48px; font-size: 15px; }
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+<input type="file" id="foto-input" accept="image/*" capture="user" hidden>
+<script>
+(function () {
+  'use strict';
+
+  var ICONE = {
+    orologio: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
+    orologioP: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2147C5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
+    pin: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>',
+    check: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>',
+    checkG: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>',
+    x: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>',
+    attenzione: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 6v8"></path><path d="M12 18.5v.01"></path></svg>',
+    triangolo: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"></path><path d="M12 10v4"></path><path d="M12 17.5v.01"></path></svg>',
+    gira: '<svg class="spinner" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 1-9 9"></path></svg>',
+    punto: '<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4" fill="currentColor"></circle></svg>',
+    scudo: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"></path></svg>',
+    telefono: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><rect x="7" y="2.5" width="10" height="19" rx="2"></rect><path d="M11 18h2"></path></svg>',
+    camera: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>',
+    invio: '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5z"></path></svg>',
+    indietro: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>',
+    avanti: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>',
+    lista: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="17" rx="2"></rect><path d="M8 2.5v3M16 2.5v3M4 9.5h16M8 13.5h3M8 17h6"></path></svg>'
+  };
+
+  var TESTI_CONTROLLO = {
+    posizione: { titolo: 'Posizione', run: 'Controllo dove sei…', ok: 'Sei nella zona del magazzino', non_configurata: 'Zona del magazzino non ancora impostata', fuori: 'Sei fuori dalla zona del magazzino', nd: 'Posizione non disponibile' },
+    telefono: { titolo: 'Telefono', run: 'Controllo il telefono…', ok: 'È quello registrato a tuo nome', nuovo: "Telefono nuovo: serve l'ok del responsabile", altro: "Telefono di un'altra persona: segnalato", nd: 'Telefono non riconosciuto: segnalato' },
+    orario: { titolo: 'Orario', run: "Controllo l'orario…", ok: 'Sei dentro il tuo orario', ritardo: 'In ritardo: segnalato al responsabile', anticipo: 'In anticipo: segnalato al responsabile', presto: 'È ancora troppo presto' }
+  };
+  var LIVELLO = { ok: 'ok', non_configurata: 'ok', fuori: 'fail', nd: 'fail', presto: 'fail', nuovo: 'warn', altro: 'warn', ritardo: 'warn', anticipo: 'warn' };
+
+  var app = document.getElementById('app');
+  var MEM = {};
+  var S = {
+    schermata: 'carico', d: null, messaggio: '', erroreAccesso: '', occupato: false,
+    tipo: '', posizione: null, controlli: {}, esito: null, problema: null,
+    ric: { tipo: '', data: '', ora: '', motivo: '', categoria: '', nota: '', allegato: '' }, ricErrore: '', ricRiepilogo: '', rispondi: '',
+    storico: null, storicoErrore: '',
+    ass: { tipo: 'Ferie', dal: '', al: '', ora: '', nota: '' }, assErrore: '', assMessaggio: '',
+    anticipo: null, accettoTogli: null, ultimaFoto: null
+  };
+
+  function leggiMem(k) { try { return window.localStorage.getItem(k) || ''; } catch (e) { return MEM[k] || ''; } }
+  function salvaMem(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { MEM[k] = v; } }
+  function togliMem(k) { try { window.localStorage.removeItem(k); } catch (e) { delete MEM[k]; } }
+
+  function idTelefono() {
+    var id = leggiMem('tm_tel');
+    if (!/^[A-Za-z0-9-]{8,64}$/.test(id)) {
+      id = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID()
+        : 'tel-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+      salvaMem('tm_tel', id);
+    }
+    return id;
+  }
+  function codice() { return leggiMem('tm_cod'); }
+   
+  function linkTrasloco(indirizzo) {
+    var dati = btoa(unescape(encodeURIComponent(JSON.stringify({ c: codice(), d: leggiMem('tm_disp'), t: idTelefono() })))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    return indirizzo.split('#')[0] + '#trasloco=' + dati;
+  }
+  function segreto() { return leggiMem('tm_disp'); }
+   
+  
+
+  var APPARECCHIO = null;   
+  function apparecchio() {
+    if (APPARECCHIO) return APPARECCHIO;
+    APPARECCHIO = rilevaApparecchio();
+    return APPARECCHIO;
+  }
+  function rilevaApparecchio() {
+    var tocchi = navigator.maxTouchPoints || 0;
+    var dito = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    var lato = Math.min(screen.width || 0, screen.height || 0);
+    return tocchi > 0 && dito && lato > 0 && lato < 700 ? 'telefono' : 'computer';
+  }
+  var INFO_APPARECCHIO = null;
+  function infoApparecchio() {
+    if (!INFO_APPARECCHIO) INFO_APPARECCHIO = leggiInfoApparecchio();
+    return INFO_APPARECCHIO;
+  }
+  function leggiInfoApparecchio() {
+    var u = navigator.userAgent || '';
+    var so = /iPhone|iPad|iPod/.test(u) ? 'iOS' : /Android/.test(u) ? 'Android' : /Windows/.test(u) ? 'Windows' : /Macintosh/.test(u) ? 'Mac' : /CrOS/.test(u) ? 'Chromebook' : /Linux/.test(u) ? 'Linux' : 'altro';
+    return so + ' · schermo ' + (screen.width || 0) + 'x' + (screen.height || 0) + ' · tocco ' + (navigator.maxTouchPoints || 0);
+  }
+  function cred(extra) { var o = { codice: codice(), dispositivo: segreto(), telefono: idTelefono(), apparecchio: apparecchio(), apparecchioInfo: infoApparecchio() }; Object.keys(extra || {}).forEach(function (k) { o[k] = extra[k]; }); return o; }
+  function descriviTelefono() { var u = navigator.userAgent || ''; return /iPhone/.test(u) ? 'iPhone' : /iPad/.test(u) ? 'iPad' : /Android/.test(u) ? (/(SM-|Samsung)/i.test(u) ? 'Samsung Android' : 'Android') : 'Browser'; }
+
+  
+  
+  var SERVER = "https://script.google.com/macros/s/AKfycbx8eClxgDkBbAVwqSzjf4hNwqWphFWUkoeolHUXDsku_7UIke0HqfMTi0i2ggwBfv_O7w/exec";
+  function chiama(fn, arg) {
+    if (SERVER && !(window.google && google.script && google.script.run)) {
+      return fetch(SERVER, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, arg: arg }), redirect: 'follow' })
+        .then(function (r) { if (!r.ok) throw new Error('Il server non risponde (' + r.status + '). Riprova.'); return r.json(); })
+        .then(function (r) { if (r && r.__errore) throw new Error(r.__errore); return r; });
+    }
+    return new Promise(function (ok, ko) {
+      google.script.run.withSuccessHandler(ok).withFailureHandler(ko)[fn](arg);
+    });
+  }
+   
+  function chiamaConRiprova(fn, arg, attese) {
+    attese = attese || [1500, 3000];
+    return chiama(fn, arg).catch(function (e) {
+      if (!attese.length) throw e;
+      var pausa = attese[0];
+      return new Promise(function (ok) { setTimeout(ok, pausa); }).then(function () { return chiamaConRiprova(fn, arg, attese.slice(1)); });
+    });
+  }
+  function nuovaRichiesta() {
+    return (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : 'rq-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+  }
+   
+  function segnaSospesa(id, tipo) { try { window.localStorage.setItem('tm_sospeso', JSON.stringify({ id: id, tipo: tipo, quando: Date.now() })); } catch (e) {} }
+  function leggiSospesa() {
+    try {
+      var x = JSON.parse(window.localStorage.getItem('tm_sospeso') || 'null');
+      return x && Date.now() - x.quando < 12 * 3600 * 1000 ? x : null;
+    } catch (e) { return null; }
+  }
+  function togliSospesa() { try { window.localStorage.removeItem('tm_sospeso'); } catch (e) {} }
+  function testoErrore(e) {
+    var m = (e && e.message) ? e.message : String(e || '');
+    return m || 'Connessione assente o lenta. Riprova.';
+  }
+
+  function esc(s) {
+    return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function vai(schermata) { S.schermata = schermata; disegna(); window.scrollTo(0, 0); }
+
+   
+
+  var VISTE = {
+    carico: function () {
+      return '<div class="centro"><span class="blu-tinta icona-piccola">' + ICONE.gira + '</span><p class="muted">Un attimo…</p></div>';
+    },
+
+    computer: function () {
+      return '<div class="centro" style="justify-content:flex-start;padding-top:24px">' +
+        '<span class="icona-tonda arancio-tinta" aria-hidden="true">' + ICONE.telefono.replace('width="16" height="16"', 'width="44" height="44"') + '</span>' +
+        '<h1>Usa il tuo telefono</h1>' +
+        '<p class="muted" style="font-size:16px;line-height:1.5">Le timbrature si fanno solo dal <b>telefono registrato a te</b>. Da computer, portatile o tablet l\'app non funziona.</p>' +
+        '<div class="avviso avviso-blu" style="text-align:left">' + ICONE.telefono + '<span>Apri questo link sul tuo telefono. Se hai cambiato telefono, chiedi al responsabile il codice di registrazione.</span></div>' +
+        '</div>';
+    },
+
+    accesso: function () {
+      var noto = !!S.codiceAccesso;
+      return '' +
+        '<div class="riga" style="flex-direction:column;align-items:flex-start;gap:6px">' +
+          '<span class="chip chip-blu">' + (noto ? 'Collega il telefono' : 'Accesso') + '</span>' +
+          '<h1>' + (S.nomeAccesso ? 'Ciao ' + esc(S.nomeAccesso) : 'Benvenuto') + '</h1>' +
+          '<p class="muted" style="font-size:15px">' + (S.infoAccesso ? esc(S.infoAccesso) : 'Ci vuole un minuto e lo fai una volta sola per telefono.') + '</p>' +
+        '</div>' +
+        '<form class="card campo" id="form-accesso" style="gap:10px" novalidate>' +
+          '<div class="riga"><span class="numero">1</span><label for="codice">Il tuo codice personale</label></div>' +
+          '<input class="input input-codice" id="codice" name="codice" type="text" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="••••" value="' + esc(S.codiceAccesso || '') + '" required>' +
+          '<div class="riga"><span class="numero">2</span><label for="pin">PIN di 6 cifre</label></div>' +
+          '<input class="input input-codice" id="pin" name="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="••••••">' +
+          (S.erroreAccesso ? '<span class="errore" role="alert">' + esc(S.erroreAccesso) + '</span>'
+            : '<span class="muted" style="font-size:14px">Il codice te lo dà il responsabile. Primo accesso con la nuova versione? Lascia vuoto il PIN: lo scegli tu al passo dopo.</span>') +
+        '</form>' +
+        '<div class="card" style="display:flex;flex-direction:column;gap:8px">' +
+          '<div class="riga"><span class="numero">3</span><h2>Come usiamo i tuoi dati</h2></div>' +
+          '<ul class="elenco">' +
+            '<li>La posizione si legge solo con l\'app aperta e si invia solo quando timbri. Non viene salvata: risulta solo «in sede» o «fuori zona».</li>' +
+            '<li>Niente impronte né riconoscimento facciale. Eventuali selfie a campione si attivano solo dopo una verifica privacy, li vede solo il responsabile e si cancellano da soli.</li>' +
+            '<li>Le timbrature servono per le presenze e le ore di lavoro: le vedono solo il responsabile e il capo turno.</li>' +
+          '</ul>' +
+        '</div>' +
+        '<div class="avviso avviso-blu">' + ICONE.telefono + '<span>Il tuo account funziona solo su questo telefono, e su questo telefono funziona solo il tuo account. Per cambiare telefono serve il codice di registrazione del responsabile.</span></div>' +
+        '<div class="spazio"></div>' +
+        '<button class="btn btn-blu" data-a="accedi"' + (S.occupato ? ' disabled' : '') + '>' + (S.occupato ? 'Controllo…' : 'Ho letto e accetto, entra') + '</button>' +
+        '<button class="btn btn-testo" data-a="vai-recupero">Telefono nuovo o PIN dimenticato?</button>';
+    },
+
+    'scegli-pin': function () {
+      return '' +
+        '<div class="riga" style="flex-direction:column;align-items:flex-start;gap:6px">' +
+          '<span class="chip chip-blu">Sicurezza</span>' +
+          '<h1>' + (S.nomeAccesso ? esc(S.nomeAccesso) + ', scegli' : 'Scegli') + ' il tuo PIN</h1>' +
+          '<p class="muted" style="font-size:15px">6 cifre, non in fila e non tutte uguali. Funziona solo su questo telefono: ti servirà se il telefono perde i dati o se il browser si scollega.</p>' +
+        '</div>' +
+        '<form class="card campo" id="form-pin" style="gap:10px" novalidate>' +
+          '<label for="pin1">PIN nuovo</label>' +
+          '<input class="input input-codice" id="pin1" type="password" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="••••••">' +
+          '<label for="pin2">Scrivilo di nuovo</label>' +
+          '<input class="input input-codice" id="pin2" type="password" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="••••••">' +
+          (S.erroreAccesso ? '<span class="errore" role="alert">' + esc(S.erroreAccesso) + '</span>' : '<span class="muted" style="font-size:14px">Non dirlo a nessuno: nemmeno il responsabile lo può vedere.</span>') +
+        '</form>' +
+        '<div class="spazio"></div>' +
+        '<button class="btn btn-blu" data-a="scegli-pin"' + (S.occupato ? ' disabled' : '') + '>' + (S.occupato ? 'Salvo…' : 'Salva il PIN') + '</button>';
+    },
+
+    recupero: function () {
+      return '' +
+        '<div class="riga" style="flex-direction:column;align-items:flex-start;gap:6px">' +
+          '<span class="chip chip-arancio">Telefono nuovo o PIN dimenticato</span>' +
+          '<h1>Registra questo telefono</h1>' +
+          (S.infoRecupero ? '<div class="avviso avviso-arancio" role="status" style="text-align:left">' + ICONE.telefono + '<span>' + esc(S.infoRecupero) + '</span></div>'
+            : '<p class="muted" style="font-size:15px">Chiedi al responsabile il <b>codice di registrazione</b>.</p>') +
+          '<p class="muted" style="font-size:14px;line-height:1.4">Il codice lo crea il responsabile dal pannello e vale una volta sola. Il telefono vecchio smetterà di funzionare. Su questo telefono non deve esserci l\'account di un collega.</p>' +
+        '</div>' +
+        '<form class="card campo" id="form-recupero" style="gap:10px" novalidate>' +
+          '<label for="rec-codice">Codice personale</label>' +
+          '<input class="input input-codice" id="rec-codice" type="text" inputmode="numeric" autocomplete="off" maxlength="6" value="' + esc(S.codiceAccesso || codice() || '') + '">' +
+          '<label for="rec-chiave">Codice di registrazione (dal responsabile)</label>' +
+          '<input class="input input-codice" id="rec-chiave" type="text" autocomplete="off" autocapitalize="characters" maxlength="10" placeholder="ABCD2345">' +
+          '<label for="rec-pin1">PIN (6 cifre: anche lo stesso di prima)</label>' +
+          '<input class="input input-codice" id="rec-pin1" type="password" inputmode="numeric" autocomplete="off" maxlength="6">' +
+          '<label for="rec-pin2">Scrivilo di nuovo</label>' +
+          '<input class="input input-codice" id="rec-pin2" type="password" inputmode="numeric" autocomplete="off" maxlength="6">' +
+          (S.erroreAccesso ? '<span class="errore" role="alert">' + esc(S.erroreAccesso) + '</span>' : '') +
+        '</form>' +
+        '<div class="spazio"></div>' +
+        '<button class="btn btn-blu" data-a="recupera-pin"' + (S.occupato ? ' disabled' : '') + '>' + (S.occupato ? 'Controllo…' : 'Registra questo telefono') + '</button>' +
+        '<button class="btn btn-testo" data-a="vai-accesso">Torna all\'accesso</button>';
+    },
+
+    home: function () {
+      var d = S.d;
+      var celle = d.celle.map(function (c) {
+        return '<div class="cella"><span>' + esc(c.label) + '</span><span class="orario" style="font-size:' + (d.celle.length > 2 ? '22px' : '28px') + '">' + esc(c.ora || '--:--') + '</span></div>';
+      }).join('');
+      var centro;
+      if (d.prossimo) {
+        var nero = d.prossimo.tipo === 'Uscita' || d.prossimo.tipo === 'Inizio pausa';
+        centro = '<button class="tondo ' + (nero ? 'tondo-nero' : 'tondo-blu') + '" data-a="timbra">' + ICONE.orologio + '<span>' + esc(d.prossimo.bottone) + '</span></button>';
+      } else if (d.riposo) {
+        centro = '<span class="icona-piccola blu-tinta">' + ICONE.orologio + '</span><span style="font-family:\'Space Grotesk\',Inter,sans-serif;font-size:22px;font-weight:600">Giorno di riposo</span><p class="muted" style="font-size:15px;line-height:1.4;max-width:300px">' + esc(d.riposo) + '</p>';
+      } else if (d.giornoExtra) {
+        centro = '<span class="icona-piccola blu-tinta">' + ICONE.check + '</span><span style="font-family:\'Space Grotesk\',Inter,sans-serif;font-size:22px;font-weight:600">Arrivo timbrato</span><p class="muted" style="font-size:15px">Oggi basta così: niente pausa e niente uscita.</p>';
+      } else {
+        centro = '<span class="icona-piccola blu-tinta">' + ICONE.check + '</span><span style="font-family:\'Space Grotesk\',Inter,sans-serif;font-size:22px;font-weight:600">Giornata completata</span><p class="muted" style="font-size:15px">Hai fatto tutte le timbrature di oggi.</p>';
+      }
+      var settimana = '<div class="card settimana" style="padding:12px 16px;display:flex;flex-direction:column;gap:2px">' +
+        (d.settimana.length ? '<div class="etichetta" style="padding-bottom:4px">Ultimi giorni</div>' +
+          d.settimana.map(function (g) { return '<div><span class="muted">' + esc(g.giorno) + '</span><span>' + esc(g.orari) + '</span></div>'; }).join('') : '') +
+        '<div class="scelte" style="margin-top:8px">' + (d.vedeTimbrature === false ? '' : '<button class="btn btn-secondario" data-a="storico">Le mie timbrature</button>') +
+        '<button class="btn btn-secondario" data-a="assenze">Ferie e permessi</button></div></div>';
+      return '' +
+        '<div style="display:flex;align-items:center;gap:12px">' +
+          '<span style="width:44px;height:44px;border-radius:12px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;flex:none">' +
+            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z"></path><path d="M12 7v5l3 2"></path><path d="M16.5 3.5l2 2"></path></svg></span>' +
+          '<div style="display:flex;flex-direction:column;gap:2px;min-width:0">' +
+            '<h1 style="font-size:26px">Ciao, ' + esc(d.nome) + '</h1>' +
+            '<span class="muted" style="font-size:15px">' + esc(d.data) + '</span>' +
+          '</div>' +
+        '</div>' +
+        (S.messaggio ? '<div class="avviso avviso-blu" role="status">' + esc(S.messaggio) + '</div>' : '') +
+        (d.avviso ? '<div class="avviso avviso-arancio" role="alert">' + ICONE.telefono + '<span>' + esc(d.avviso) + '</span></div>' : '') +
+        (d.oggiPermesso ? '<div class="avviso avviso-blu">' + ICONE.lista + '<span>' + esc(d.oggiPermesso) + '</span></div>' : '') +
+        (d.indirizzoApp && !SERVER ? '<a class="avviso avviso-arancio" style="text-decoration:none;color:inherit;font-weight:600" href="' + esc(linkTrasloco(d.indirizzoApp)) + '" target="_blank" rel="noopener">' + ICONE.telefono + '<span>L\'app ha un nuovo indirizzo: tocca qui per aprirla (resti collegato) e poi aggiungila alla schermata Home.</span></a>' : '') +
+        (d.assistitaInAttesa ? '<div class="avviso avviso-arancio" role="status">' + ICONE.telefono + '<span>' + esc(d.assistitaInAttesa) + '</span></div>' : '') +
+        segnalazioni(d) +
+        (d.riposo ? '' : '<div class="card riga" style="padding:10px 12px;font-size:14px">' + ICONE.orologioP + '<span><strong style="font-weight:600">' + esc(d.orarioNome) + '</strong> · ' + esc(d.orarioDettaglio) + '</span></div>') +
+        (d.riposo || !d.celle.length ? '' : '<div class="card celle" style="grid-template-columns:repeat(' + d.celle.length + ',minmax(0,1fr))">' + celle + '</div>') +
+        '<div class="centro">' + centro +
+          (d.prossimo && (d.prossimo.tipo === 'Inizio pausa' || d.prossimo.tipo === 'Fine pausa') ? '<button class="btn btn-testo" data-a="va-via" style="min-height:40px">Devo andare via adesso (sto male, imprevisto)</button>' : '') +
+          '<p class="riga muted" style="font-size:14px;line-height:1.4;max-width:300px;align-items:flex-start;text-align:left">' + ICONE.pin + '<span>La posizione si invia solo quando timbri e non viene salvata.</span></p>' +
+        '</div>' +
+        '<button class="link" data-a="manuale">Hai dimenticato una timbratura?</button>' +
+        settimana +
+        '<div class="piede"><span>Non sei ' + esc(d.nomeCompleto) + '? <button class="link" data-a="esci" style="min-height:0;font-size:14px">Esci</button></span>' +
+          '<button class="link" data-a="privacy" style="min-height:0;font-size:14px">Privacy</button></div>';
+    },
+
+    verifica: function () {
+      var righe = ['posizione', 'telefono', 'orario'].map(function (k) {
+        var v = S.controlli[k] || 'wait';
+        var liv = v === 'run' || v === 'wait' ? v : (LIVELLO[v] || 'ok');
+        var icona = liv === 'ok' ? ICONE.check : liv === 'run' ? ICONE.gira : liv === 'fail' ? ICONE.x : liv === 'warn' ? ICONE.attenzione : ICONE.punto;
+        var testo = v === 'wait' ? 'In attesa' : (TESTI_CONTROLLO[k][v] || '');
+        return '<div class="card controllo st-' + liv + '"><span class="cerchio">' + icona + '</span><span><b>' + TESTI_CONTROLLO[k].titolo + '</b><small>' + esc(testo) + '</small></span></div>';
+      }).join('');
+      return '' +
+        '<span class="chip chip-blu" role="status"><span class="pulsa" style="display:flex">' + ICONE.pin + '</span>Posizione attiva</span>' +
+        '<div style="display:flex;flex-direction:column;gap:6px"><span class="stato-reg stato-run">In elaborazione</span><h1>Controllo in corso</h1><p class="muted" style="font-size:16px">Stai timbrando: ' + esc(S.tipo.toLowerCase()) + '. Non è ancora registrata: aspetta la conferma.</p></div>' +
+        '<div style="display:flex;flex-direction:column;gap:12px">' + righe + '</div>';
+    },
+
+    selfie: function () {
+      return '' +
+        (S.fotoObbligatoria ? '<span class="chip chip-arancio">Foto obbligatoria</span>' : '<span class="chip chip-arancio">Foto a campione</span>') +
+        '<div style="display:flex;flex-direction:column;gap:6px"><h1>Una foto veloce</h1><p class="muted" style="font-size:16px;line-height:1.4">' +
+        (S.fotoObbligatoria ? 'Il responsabile ha chiesto la foto a ogni timbratura: inquadra il viso con il magazzino alle spalle.' : 'Oggi tocca a te: inquadra il viso con il magazzino alle spalle.') + '</p></div>' +
+        '<div class="mirino"><div></div><span>Si apre la fotocamera del telefono</span></div>' +
+        '<p class="riga muted" style="font-size:14px;line-height:1.4;align-items:flex-start">' + ICONE.scudo + '<span>La vede solo il responsabile e viene cancellata dopo ' + esc(S.d.giorniFoto || 30) + ' giorni. Nessun riconoscimento facciale.</span></p>' +
+        (S.problemaFoto ? '<span class="errore" role="alert">' + esc(S.problemaFoto) + '</span>' : '') +
+        '<button class="btn btn-blu" data-a="scatta"' + (S.occupato ? ' disabled' : '') + '>' + ICONE.camera + (S.occupato ? 'Invio la foto…' : 'Scatta e timbra') + '</button>' +
+        '<button class="btn btn-testo" data-a="senza-foto">Non riesco a fare la foto</button>';
+    },
+
+    fatto: function () {
+      var r = S.esito;
+      var segnalate = (r.segnalate || []).filter(function (x) { return !(r.toltiTesto && /^Uscita prima/.test(x)); });
+      var avvisi = (r.avvisi || []).map(function (a) { return '<div class="avviso avviso-arancio" style="text-align:left">' + esc(a) + '</div>'; }).join('');
+      return '<div class="centro" style="gap:14px">' +
+        '<span class="icona-tonda blu-tinta">' + ICONE.checkG + '</span>' +
+        '<span class="stato-reg stato-ok">Registrata</span>' +
+        '<h1 role="status" style="font-size:28px">' + esc(r.titolo) + '</h1>' +
+        '<span class="grande">' + esc(r.ora) + '</span>' +
+        '<span class="muted" style="font-size:16px">' + esc(r.data) + ' · Magazzino</span>' +
+        (r.promemoria ? '<span class="avviso avviso-arancio" style="font-weight:600">' + esc(r.promemoria) + '</span>' : '') +
+        (r.consiglio ? '<span class="avviso avviso-blu" style="text-align:left">' + esc(r.consiglio) + '</span>' : '') +
+        (r.conFoto ? '<span class="chip chip-blu" style="align-self:center">' + ICONE.check.replace('width="22" height="22"', 'width="14" height="14"') + 'Foto inviata</span>' : '') +
+        avvisi +
+        (r.toltiTesto ? '<div class="avviso avviso-arancio" style="text-align:left">' + esc(r.toltiTesto) + '</div>' : '') +
+        (segnalate.length ? '<div class="avviso avviso-arancio" style="text-align:left">Segnalato al responsabile: ' + esc(segnalate.join(', ').toLowerCase()) + '. Vedrai la sua decisione nella tua app.</div>' :
+          r.daConfermare && !r.toltiTesto ? '<div class="avviso avviso-arancio" style="text-align:left">L\'orario è registrato ma resta da confermare: lo controlla il responsabile.</div>' : '') +
+        '<p class="muted" style="font-size:14px;line-height:1.4;max-width:290px">Il punto esatto in cui eri non è stato salvato: risulta solo «in sede».</p>' +
+        '</div>' +
+        '<button class="btn btn-nero" data-a="home">Fatto</button>';
+    },
+
+     
+    'errore-invio': function () {
+      return '' +
+        '<span class="stato-reg stato-ko">Errore di registrazione</span>' +
+        '<span class="icona-piccola arancio-tinta">' + ICONE.triangolo + '</span>' +
+        '<h1 role="alert">La timbratura non è confermata</h1>' +
+        '<p style="font-size:16px;line-height:1.45;color:var(--soft)">Il server non ha risposto (' + esc(S.erroreInvio || 'connessione assente') + '). ' +
+          'Potrebbe essere arrivata oppure no: premi «Riprova» e il sistema controlla da solo, senza creare una seconda timbratura.</p>' +
+        '<div class="spazio"></div>' +
+        '<button class="btn btn-blu" data-a="riprova-invio"' + (S.occupato ? ' disabled' : '') + '>Riprova</button>' +
+        '<button class="btn btn-testo" data-a="annulla-invio">Torna all\'inizio</button>';
+    },
+
+     
+    'va-via': function () {
+      var v = S.vaVia || {};
+      var motivi = ['Non sto bene', 'Motivo personale o familiare', 'Altro'];
+      return '<button class="link" data-a="home" style="align-self:flex-start;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:6px">' + ICONE.indietro + 'Indietro</button>' +
+        '<h1 style="font-size:28px">Devi andare via adesso?</h1>' +
+        '<p class="muted" style="font-size:16px;line-height:1.45">Puoi timbrare l\'uscita anche prima della pausa (o durante). Il responsabile vede il motivo e decide se toglierti le ore oppure registrarle come malattia o permesso.</p>' +
+        '<div class="campo"><span style="font-weight:600;font-size:15px">Perché?</span><div class="pillole">' +
+          motivi.map(function (m) { return '<button type="button" class="scelta pillola" aria-pressed="' + (v.motivo === m) + '" data-a="va-via-motivo" data-v="' + esc(m) + '">' + esc(m) + '</button>'; }).join('') + '</div></div>' +
+        '<div class="campo"><label for="va-nota">Vuoi aggiungere qualcosa? (facoltativo)</label><textarea class="input" id="va-nota" data-vavia="nota" rows="2" maxlength="200" placeholder="Es. mal di testa forte">' + esc(v.nota || '') + '</textarea></div>' +
+        (v.errore ? '<span class="errore" role="alert">' + esc(v.errore) + '</span>' : '') +
+        '<div class="spazio"></div>' +
+        '<button class="btn btn-nero" data-a="va-via-ok"' + (S.occupato ? ' disabled' : '') + '>Continua: timbro l\'uscita</button>' +
+        '<button class="btn btn-bordo" data-a="home">No, resto al lavoro</button>';
+    },
+
+    anticipo: function () {
+      var a = S.anticipo;
+      return '' +
+        '<span class="icona-piccola arancio-tinta">' + ICONE.triangolo + '</span>' +
+        '<h1 role="alert">Stai uscendo prima dell\'orario</h1>' +
+        '<div class="card" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 16px;text-align:center">' +
+          '<span class="muted" style="font-size:15px">Ti verranno tolti</span>' +
+          '<span class="grande" style="font-size:52px;color:var(--orange)">' + esc(durataTesto(a.tolti)) + '</span>' +
+          '<span class="muted" style="font-size:15px">dalla giornata di oggi</span>' +
+        '</div>' +
+        '<p style="font-size:16px;line-height:1.45;color:var(--soft)">Sono le <b style="color:var(--ink)">' + esc(a.ora) + '</b> e il tuo orario finisce alle <b style="color:var(--ink)">' + esc(a.limite) + '</b>. ' +
+          'Se timbri adesso l\'uscita sarà segnalata come anomalia al responsabile, che deciderà se toglierti i minuti.' +
+          (a.blocco > 1 ? ' I minuti si tolgono a blocchi di ' + esc(a.blocco) + '.' : '') + '</p>' +
+        '<p style="font-size:17px;font-weight:600;margin:0">Vuoi accettare?</p>' +
+        '<div class="spazio"></div>' +
+        '<button class="btn btn-nero" data-a="anticipo-si"' + (S.occupato ? ' disabled' : '') + '>Accetto, timbro l\'uscita</button>' +
+        '<button class="btn btn-bordo" data-a="anticipo-no">No, torno al lavoro</button>';
+    },
+
+    problema: function () {
+      var p = S.problema;
+      var titoli = {
+        fuori: 'Non risulti in magazzino', posizione: p.posizione === 'impreciso' ? 'Il segnale GPS è troppo debole' : 'Non riusciamo a leggere la posizione',
+        presto: 'È ancora presto', errore: 'Qualcosa non ha funzionato'
+      };
+      var aiuto = '';
+      if (p.tipo === 'fuori') {
+        aiuto = '<div class="card" style="display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:1.4"><b style="font-weight:600">Se sei davvero qui</b>' +
+          "<span style=\"color:var(--soft)\">Avvicinati a un'uscita o a una finestra e riprova.</span>" +
+          '<span style="color:var(--soft)">Controlla che la posizione precisa del telefono sia attiva.</span></div>';
+      }
+      if (p.tipo === 'posizione') {
+        aiuto = '<div class="card" style="display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.4"><b style="font-weight:600">Come attivarla</b>' +
+          '<span style="color:var(--soft)"><strong>iPhone:</strong> Impostazioni › Privacy e sicurezza › Localizzazione: attivala. Poi, nella stessa pagina, apri il browser che usi (Safari o Chrome) e scegli «Mentre usi l\'app».</span>' +
+          "<span style=\"color:var(--soft)\"><strong>Samsung / Android:</strong> abbassa la tendina e attiva «Posizione». Poi nel browser tocca l'icona a sinistra dell'indirizzo › Autorizzazioni › Posizione: Consenti.</span></div>";
+      }
+      var riprova = p.tipo === 'fuori' || p.tipo === 'posizione';
+      return '' +
+        '<span class="icona-piccola arancio-tinta">' + ICONE.triangolo + '</span>' +
+        '<h1 role="alert">' + titoli[p.tipo] + '</h1>' +
+        '<p style="font-size:16px;line-height:1.45;color:var(--soft)">' + esc(p.messaggio) + '</p>' +
+        aiuto +
+        '<div class="spazio"></div>' +
+        (riprova ? '<button class="btn btn-blu" data-a="timbra">Riprova</button>' : '') +
+        (p.tipo === 'errore' ? '<button class="btn btn-blu" data-a="ricarica">Riprova</button>' : '') +
+        (p.assistita ? '<button class="btn btn-bordo" data-a="assistita"' + (S.occupato ? ' disabled' : '') + '>Chiedi timbratura assistita</button>' +
+          '<span class="muted" style="font-size:13px;line-height:1.35;text-align:center">Il responsabile verifica che sei al lavoro e registra l\'orario di adesso. Non resti mai bloccato per il GPS.</span>' : '') +
+        (p.tipo === 'fuori' ? '<button class="btn btn-bordo" data-a="manuale">Invia una richiesta al responsabile</button>' : '') +
+        '<button class="btn btn-testo" data-a="home">Torna all\'inizio</button>';
+    },
+
+    privacy: function () {
+      var pv = S.pv || {};
+      var testa = '<button class="link" data-a="home" style="align-self:flex-start;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:6px">' + ICONE.indietro + 'Indietro</button>' +
+        '<h1 style="font-size:28px">Privacy</h1>';
+      var p = pv.dati;
+      if (!p) return testa + (pv.errore ? '<span class="errore" role="alert">' + esc(pv.errore) + '</span><button class="btn btn-blu" data-a="privacy">Riprova</button>'
+        : '<div class="centro"><span class="blu-tinta icona-piccola">' + ICONE.gira + '</span><p class="muted">Carico…</p></div>');
+      var cosa = p.conservazione.map(function (x) {
+        return '<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0;border-top:1px solid var(--line)"><b style="font-weight:600;font-size:15px">' + esc(x.cosa) + '</b><span class="muted" style="font-size:14px;line-height:1.4">' + esc(x.quanto) + '</span></div>';
+      }).join('');
+      var tipi = p.tipi.map(function (t) { return '<option' + (pv.tipo === t ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('');
+      var mie = p.richieste.map(function (x) {
+        var colore = x.stato === 'Evasa' ? 'chip-blu' : x.stato === 'Respinta' ? 'chip-grigio' : 'chip-arancio';
+        return '<div style="display:flex;flex-direction:column;gap:4px;padding:10px 0;border-top:1px solid var(--line)">' +
+          '<div class="riga" style="justify-content:space-between;gap:8px"><span style="font-size:14px;font-weight:600">' + esc(x.tipo) + ' · ' + esc(String(x.quando).slice(8, 10) + '/' + String(x.quando).slice(5, 7)) + '</span><span class="chip ' + colore + '">' + esc(x.stato) + '</span></div>' +
+          (x.testo ? '<span class="muted" style="font-size:14px">«' + esc(x.testo) + '»</span>' : '') +
+          (x.risposta ? '<span style="font-size:14px">Risposta: ' + esc(x.risposta) + '</span>' : '') + '</div>';
+      }).join('');
+      return testa +
+        (pv.messaggio ? '<div class="avviso avviso-blu" role="status">' + esc(pv.messaggio) + '</div>' : '') +
+        '<section class="card" aria-label="Cosa registriamo" style="display:flex;flex-direction:column;gap:0"><span class="etichetta" style="padding-bottom:6px">Cosa registriamo e per quanto</span>' + cosa +
+          (p.accettata ? '<span class="muted" style="font-size:13px;padding-top:8px">Informativa accettata il ' + esc(p.accettata.slice(8, 10) + '/' + p.accettata.slice(5, 7) + '/' + p.accettata.slice(0, 4)) + '.</span>' : '') +
+          (p.informativa ? '<a href="' + esc(p.informativa) + '" target="_blank" rel="noopener" style="font-size:15px;font-weight:600;padding-top:8px">Leggi l\'informativa completa</a>' : '') + '</section>' +
+        '';
+    },
+
+    manuale: function () {
+      var d = S.d, q = S.ric;
+      var tipi = d.tipiRichiesta.map(function (t) {
+        return '<button type="button" class="scelta" aria-pressed="' + (q.tipo === t) + '" data-a="ric-tipo" data-v="' + esc(t) + '">' + esc(t) + '</button>';
+      }).join('');
+      var min = new Date(Date.now() - 31 * 86400000);
+      var minTesto = min.getFullYear() + '-' + ('0' + (min.getMonth() + 1)).slice(-2) + '-' + ('0' + min.getDate()).slice(-2);
+      var mie = (d.richieste || []).map(function (x) {
+        var colore = x.stato === 'Approvata' ? 'chip-blu' : x.stato === 'Rifiutata' ? 'chip-grigio' : 'chip-arancio';
+        return '<div class="segn-voce" style="display:flex;flex-direction:column;gap:4px;padding:10px 0;border-top:1px solid var(--line)">' +
+          '<div class="riga" style="justify-content:space-between;gap:8px"><span style="font-size:14px;font-weight:600">' + esc(x.cosa) + '</span><span class="chip ' + colore + '">' + esc(x.stato) + '</span></div>' +
+          (x.risposta ? '<span class="muted" style="font-size:14px">Responsabile: ' + esc(x.risposta) + '</span>' : '') +
+          (x.stato === 'Chiarimenti richiesti' ? (S.rispondi === x.id
+            ? '<textarea class="input" id="risp-testo" rows="2" maxlength="300" placeholder="La tua risposta"></textarea><button class="btn btn-blu" data-a="invia-risposta" data-id="' + esc(x.id) + '"' + (S.occupato ? ' disabled' : '') + '>Invia risposta</button>'
+            : '<button class="btn btn-bordo" data-a="rispondi" data-id="' + esc(x.id) + '">Rispondi</button>') : '') +
+          '</div>';
+      }).join('');
+      return '' +
+        '<button class="link" data-a="home" style="align-self:flex-start;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:6px">' + ICONE.indietro + 'Indietro</button>' +
+        '<div style="display:flex;flex-direction:column;gap:6px"><h1 style="font-size:28px">Timbratura dimenticata</h1>' +
+        '<p class="muted" style="font-size:15px;line-height:1.4">Hai dimenticato di timbrare? Chiedila qui: non conta finché il responsabile non la approva, e vedrai la sua decisione nelle notifiche.</p></div>' +
+        '<div class="campo"><span class="lbl">Quale timbratura hai dimenticato</span><div class="scelte">' + tipi + '</div></div>' +
+        '<div class="scelte">' +
+          '<div class="campo"><label for="ric-data">Giorno</label><input class="input" id="ric-data" data-c="data" type="date" min="' + esc(minTesto) + '" max="' + esc(d.oggi) + '" value="' + esc(q.data) + '"></div>' +
+          '<div class="campo"><label for="ric-ora">Orario giusto</label><input class="input" id="ric-ora" data-c="ora" type="time" value="' + esc(q.ora) + '"></div>' +
+        '</div>' +
+        '<div class="campo"><label for="ric-nota">Motivazione</label><textarea class="input" id="ric-nota" data-c="nota" rows="2" maxlength="300" placeholder="Es. il telefono si è spento alle 7:40">' + esc(q.nota) + '</textarea></div>' +
+        '<div class="campo"><span style="font-weight:600;font-size:15px">Allegato (facoltativo)</span>' +
+          '<label class="btn btn-bordo" for="ric-allegato" style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer">' + ICONE.camera + (q.allegato ? 'Foto pronta · cambiala' : 'Aggiungi una foto') + '</label>' +
+          '<input id="ric-allegato" type="file" accept="image/*" hidden>' +
+          '<span class="muted" style="font-size:13px">Per esempio la foto del foglio presenze firmato o di un errore sullo schermo.</span></div>' +
+        (S.ricErrore ? '<span class="errore" role="alert">' + esc(S.ricErrore) + '</span>' : '') +
+        '<button class="btn btn-blu" data-a="invia-richiesta"' + (S.occupato ? ' disabled' : '') + '>' + (S.occupato ? 'Invio…' : 'Invia la richiesta') + '</button>' +
+        (mie ? '<section class="card" aria-label="Le mie richieste" style="display:flex;flex-direction:column;gap:0"><span class="etichetta" style="padding-bottom:6px">Le mie richieste</span>' + mie + '</section>' : '');
+    },
+
+    storico: function () {
+      var st = S.storico;
+      var testa = '<button class="link" data-a="home" style="align-self:flex-start;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:6px">' + ICONE.indietro + 'Indietro</button>' +
+        '<h1 style="font-size:28px">Le mie timbrature</h1>';
+      if (!st) {
+        return testa + (S.storicoErrore ? '<span class="errore" role="alert">' + esc(S.storicoErrore) + '</span><button class="btn btn-blu" data-a="storico">Riprova</button>'
+          : '<div class="centro"><span class="blu-tinta icona-piccola">' + ICONE.gira + '</span><p class="muted">Carico…</p></div>');
+      }
+      var colori = { 'Confermata': 'chip-blu', 'In corso': 'chip-blu', 'Da confermare': 'chip-arancio', 'In attesa': 'chip-arancio', 'Incompleta': 'chip-grigio',
+        'Ferie': 'chip-blu', 'Permesso': 'chip-blu', 'Malattia': 'chip-grigio' };
+      var giorni = st.giorni.map(function (g) {
+        var testa = '<div class="riga" style="justify-content:space-between"><b style="font-size:16px;font-weight:600">' + esc(g.giorno) + '</b>' +
+          '<span class="chip ' + (colori[g.stato] || 'chip-grigio') + '" style="align-self:center">' + esc(g.stato) + '</span></div>';
+        if (!g.entrata && !g.uscita) return '<div class="card giorno">' + testa + '</div>';
+        return '<div class="card giorno">' + testa +
+          '<div class="orari"><span>Entrata <strong>' + esc(g.entrata || '—') + '</strong></span><span>Uscita <strong>' + esc(g.uscita || '—') + '</strong></span>' +
+          (g.pausa ? '<span>Pausa <strong>' + esc(g.pausa) + '</strong></span>' : '') +
+          '<span>Ore <strong>' + esc(g.ore || '—') + '</strong>' + (g.extra ? ' <span style="color:' + (g.extra.charAt(0) === '+' ? 'var(--blue-dark)' : 'var(--orange-dark)') + ';font-weight:600">' + esc(g.extra) + '</span>' : '') + '</span></div>' +
+          (g.nota ? '<span class="muted" style="font-size:14px">' + esc(g.nota) + '</span>' : '') + '</div>';
+      }).join('');
+      var c = st.conferma;
+      var conferma = c.fatta ? '<div class="avviso avviso-blu">' + ICONE.check.replace('width="22" height="22"', 'width="18" height="18"') + '<span>Hai confermato le ore di questo mese il ' + esc(c.fatta.slice(8, 10) + '/' + c.fatta.slice(5, 7)) + '.</span></div>'
+        : c.possibile ? '<div class="card" style="display:flex;flex-direction:column;gap:10px"><b style="font-weight:600">Le ore di ' + esc(st.meseTesto) + ' sono giuste?</b>' +
+          '<span class="muted" style="font-size:14px;line-height:1.4">Controlla i giorni qui sotto. Se è tutto giusto, confermalo: così non ci sono discussioni dopo. Se qualcosa non torna, parlane con il responsabile.</span>' +
+          (S.storicoErrore ? '<span class="errore" role="alert">' + esc(S.storicoErrore) + '</span>' : '') +
+          '<button class="btn btn-blu" data-a="conferma-mese" data-v="' + esc(st.mese) + '"' + (S.occupato ? ' disabled' : '') + '>Confermo le mie ore</button></div>'
+        : (c.motivo && !(c.contestata && c.contestata.stato === 'In attesa') ? '<p class="muted" style="font-size:14px;line-height:1.4">' + esc(c.motivo) + '</p>' : '');
+      
+      var finito = st.meseFinito;
+      var ct = c.contestata;
+      var contestazione = ct ? '<div class="avviso ' + (ct.stato === 'In attesa' ? 'avviso-arancio' : 'avviso-blu') + '" style="text-align:left;flex-direction:column;align-items:flex-start;gap:4px">' +
+          '<b style="font-weight:600">Hai contestato le ore · ' + esc(ct.stato === 'In attesa' ? 'in attesa di risposta' : ct.stato.toLowerCase()) + '</b><span>«' + esc(ct.motivo) + '»</span>' +
+          (ct.risposta ? '<span>Risposta del responsabile: ' + esc(ct.risposta) + '</span>' : '') + '</div>' : '';
+      var puoContestare = finito && st.statoMese !== 'Chiuso' && !(ct && ct.stato === 'In attesa');
+      var formContesta = !puoContestare ? '' : !S.contesta ? '<button class="link" data-a="contesta-apri" style="align-self:flex-start">Qualcosa non torna? Contesta le ore</button>'
+        : '<div class="card" style="display:flex;flex-direction:column;gap:10px"><label for="contesta-motivo" style="font-weight:600">Cosa non torna? Scrivi giorno e orario</label>' +
+          '<textarea id="contesta-motivo" class="input" data-contesta="1" rows="3" maxlength="400" placeholder="Es. martedì 14 sono uscito alle 18:00, non alle 17:30">' + esc(S.contesta.motivo || '') + '</textarea>' +
+          (S.contestaErrore ? '<span class="errore" role="alert">' + esc(S.contestaErrore) + '</span>' : '') +
+          '<div class="riga" style="gap:8px"><button class="btn btn-blu" data-a="contesta-invia"' + (S.occupato ? ' disabled' : '') + '>Invia al responsabile</button>' +
+          '<button class="btn btn-bordo" data-a="contesta-chiudi">Annulla</button></div></div>';
+      var pdf = st.giorni.length ? (S.pdf && S.pdf.mese === st.mese && S.pdf.url
+          ? '<a class="btn btn-bordo" style="text-decoration:none" href="' + S.pdf.url + '" download="' + esc(S.pdf.nome) + '" target="_blank" rel="noopener">Apri il PDF di ' + esc(st.meseTesto) + '</a>'
+          : '<button class="link" data-a="pdf-mese" data-v="' + esc(st.mese) + '" style="align-self:flex-start"' + (S.occupato ? ' disabled' : '') + '>' + (S.pdf && S.pdf.mese === st.mese && S.pdf.carico ? 'Preparo il PDF…' : 'Scarica il riepilogo in PDF') + '</button>') +
+          (S.pdf && S.pdf.mese === st.mese && S.pdf.errore ? '<span class="errore" role="alert">' + esc(S.pdf.errore) + '</span>' : '') : '';
+      conferma += contestazione + formContesta;
+      return testa +
+        '<div class="mesi">' +
+          '<button class="freccia" data-a="mese" data-v="' + esc(st.mesePrec) + '" aria-label="Mese precedente"' + (st.mesePrec ? '' : ' disabled') + '>' + ICONE.indietro + '</button>' +
+          '<span class="titolo-mese" role="status">' + esc(st.meseTesto) + '</span>' +
+          '<button class="freccia" data-a="mese" data-v="' + esc(st.meseSucc) + '" aria-label="Mese successivo"' + (st.meseSucc ? '' : ' disabled') + '>' + ICONE.avanti + '</button>' +
+        '</div>' +
+        '<div class="card totali">' +
+          '<div><span class="muted" style="font-size:13px">Giorni lavorati</span><b>' + esc(st.totale.giorni) + '</b></div>' +
+          '<div><span class="muted" style="font-size:13px">Ore confermate</span><b>' + esc(st.totale.oreConfermate) + '</b></div>' +
+          (st.totale.oreDaConfermare ? '<div><span class="muted" style="font-size:13px">Ancora da confermare</span><b style="color:var(--orange-dark)">' + esc(st.totale.oreDaConfermare) + '</b></div>' : '') +
+          (st.totale.straordinari ? '<div><span class="muted" style="font-size:13px">Ore in più</span><b style="color:var(--blue-dark)">' + esc(st.totale.straordinari) + '</b></div>' : '') +
+        '</div>' + conferma +
+        (giorni || '<div class="card muted" style="text-align:center;padding:24px 16px">Nessuna timbratura in questo mese.</div>') +
+        '<p class="muted" style="font-size:13px;line-height:1.4">«Da confermare»: c\'è qualcosa che il responsabile deve ancora controllare. «Incompleta»: manca una timbratura.</p>' +
+        (st.statoMese && finito ? '<p class="muted" style="font-size:13px">Stato del mese: ' + esc(st.statoMese) + '</p>' : '') + pdf;
+    },
+
+    informativa: function () {
+      var d = S.d;
+      return '<span class="chip chip-blu">Privacy</span>' +
+        '<h1>Come usiamo i tuoi dati</h1>' +
+        '<div class="card" style="display:flex;flex-direction:column;gap:8px"><ul class="elenco" style="font-size:15px">' +
+          '<li>La posizione si legge solo con l\'app aperta e si invia solo quando timbri. Non viene salvata: risulta solo «in sede» o «fuori zona».</li>' +
+          (d.selfieAttivo ? "<li>A volte, quando timbri, ti chiediamo un selfie: lo vede solo il responsabile e si cancella dopo " + esc(d.giorniFoto || 30) + ' giorni.</li>' : '<li>Nessun selfie: le foto sono spente.</li>') +
+          '<li>Niente impronte né riconoscimento facciale.</li>' +
+          '<li>Le timbrature servono per le presenze e le ore di lavoro e le vede solo il responsabile.</li>' +
+          '<li>Quando vuoi, da «Privacy» rivedi cosa registriamo. Per qualsiasi dubbio parla con il responsabile.</li>' +
+        '</ul>' + (d.informativa ? '<a href="' + esc(d.informativa) + '" target="_blank" rel="noopener" style="font-size:15px;font-weight:600">Leggi l\'informativa completa</a>' : '') + '</div>' +
+        (S.messaggio ? '<span class="errore" role="alert">' + esc(S.messaggio) + '</span>' : '') +
+        '<div class="spazio"></div>' +
+        '<button class="btn btn-blu" data-a="accetta"' + (S.occupato ? ' disabled' : '') + '>' + (S.occupato ? 'Salvo…' : 'Ho letto e accetto') + '</button>';
+    },
+
+    assenze: function () {
+      var d = S.d;
+      var colori = { 'Approvata': 'chip-blu', 'In attesa': 'chip-arancio', 'Rifiutata': 'chip-grigio', 'Annullata': 'chip-grigio' };
+      var lista = d.assenze.map(function (a) {
+        return '<div class="card" style="display:flex;flex-direction:column;gap:6px"><div class="riga" style="justify-content:space-between">' +
+          '<b style="font-weight:600">' + esc(a.tipo) + '</b><span class="chip ' + (colori[a.stato] || 'chip-grigio') + '" style="align-self:center">' + esc(a.stato) + '</span></div>' +
+          '<span style="font-size:15px">' + esc(a.cosa) + '</span>' + (a.nota ? '<span class="muted" style="font-size:14px">«' + esc(a.nota) + '»</span>' : '') + '</div>';
+      }).join('');
+      return '<button class="link" data-a="home" style="align-self:flex-start;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:6px">' + ICONE.indietro + 'Indietro</button>' +
+        '<h1 style="font-size:28px">Ferie e permessi</h1>' +
+        (S.assMessaggio ? '<div class="avviso avviso-blu" role="status">' + esc(S.assMessaggio) + '</div>' : '') +
+        '<button class="btn btn-blu" data-a="nuova-assenza">Nuova richiesta</button>' +
+        '<p class="muted" style="font-size:14px;line-height:1.4">Ferie, permessi, malattia, uscita anticipata, entrata posticipata o lavoro in pausa pranzo. Il responsabile la approva o la rifiuta.</p>' +
+        (lista || '<div class="card muted" style="text-align:center;padding:24px 16px">Nessuna richiesta finora.</div>');
+    },
+
+    'nuova-assenza': function () {
+      var d = S.d, q = S.ass;
+      var giornaliera = ['Ferie', 'Permesso', 'Malattia'].indexOf(q.tipo) >= 0;
+      var pausa = q.tipo === 'Lavoro in pausa pranzo';
+      var tipi = d.tipiAssenza.map(function (t) {
+        return '<button type="button" class="scelta pillola" aria-pressed="' + (q.tipo === t) + '" data-a="ass-tipo" data-v="' + esc(t) + '">' + esc(t) + '</button>';
+      }).join('');
+      var date = pausa
+        ? '<div class="campo"><label for="ass-dal">Giorno</label><input class="input" id="ass-dal" data-ass="dal" type="date" min="' + esc(d.oggi) + '" value="' + esc(q.dal) + '"></div>'
+        : giornaliera
+        ? '<div class="scelte"><div class="campo"><label for="ass-dal">Dal</label><input class="input" id="ass-dal" data-ass="dal" type="date" value="' + esc(q.dal) + '"></div>' +
+          '<div class="campo"><label for="ass-al">Al</label><input class="input" id="ass-al" data-ass="al" type="date" value="' + esc(q.al) + '"></div></div>'
+        : '<div class="scelte"><div class="campo"><label for="ass-dal">Giorno</label><input class="input" id="ass-dal" data-ass="dal" type="date" min="' + esc(d.oggi) + '" value="' + esc(q.dal) + '"></div>' +
+          '<div class="campo"><label for="ass-ora">' + (q.tipo === 'Uscita anticipata' ? 'Esco alle' : 'Entro alle') + '</label><input class="input" id="ass-ora" data-ass="ora" type="time" value="' + esc(q.ora) + '"></div></div>';
+      return '<button class="link" data-a="assenze" style="align-self:flex-start;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:6px">' + ICONE.indietro + 'Indietro</button>' +
+        '<h1 style="font-size:28px">Nuova richiesta</h1>' +
+        '<div class="campo"><span class="lbl">Cosa chiedi</span><div class="pillole">' + tipi + '</div></div>' +
+        date +
+        (q.tipo === 'Malattia' ? '<p class="muted" style="font-size:14px;line-height:1.4">Nella nota puoi scrivere il numero di protocollo del certificato.</p>' : '') +
+        (pausa ? '<p class="muted" style="font-size:14px;line-height:1.4">Se il responsabile approva, quel giorno fai l\'orario continuato: lavori anche nella pausa pranzo senza fermarti, non timbri la pausa e quell\'ora ti viene contata.</p>' : '') +
+        '<div class="campo"><label for="ass-nota">Nota (facoltativa)</label><textarea class="input" id="ass-nota" data-ass="nota" rows="2" maxlength="300">' + esc(q.nota) + '</textarea></div>' +
+        (S.assErrore ? '<span class="errore" role="alert">' + esc(S.assErrore) + '</span>' : '') +
+        '<div class="spazio"></div>' +
+        '<button class="btn btn-blu" data-a="invia-assenza"' + (S.occupato ? ' disabled' : '') + '>' + (S.occupato ? 'Invio…' : 'Invia richiesta') + '</button>';
+    },
+
+    inviata: function () {
+      return '<div class="centro">' +
+        '<span class="icona-tonda blu-tinta">' + ICONE.invio + '</span>' +
+        '<h1 role="status" style="font-size:28px">Richiesta inviata</h1>' +
+        '<span style="font-size:17px;font-weight:600">' + esc(S.ricRiepilogo) + '</span>' +
+        '<p class="muted" style="font-size:15px;line-height:1.4;max-width:290px">Quando il responsabile la approva, la timbratura entra nel registro.</p>' +
+        '</div>' +
+        '<button class="btn btn-nero" data-a="home">Torna all\'inizio</button>';
+    }
+  };
+
+  
+
+  function vistiNotifiche() {
+    var v = {};
+    try { (JSON.parse(leggiMem('tm_visti') || '[]')).forEach(function (k) { v[k] = true; }); } catch (e) {}
+    return v;
+  }
+  function segnalazioni(d) {
+    var lista = d.notifiche || [];
+    if (!lista.length) return '';
+    var visti = vistiNotifiche();
+    var nuove = lista.filter(function (x) { return !visti[x.id]; }).length;
+    var voce = function (x) {
+      return '<div class="segn"><div class="segn-testa"><b>' + esc(x.tipo) + '</b>' + (S.nuoveViste && S.nuoveViste[x.id] ? '<span class="chip chip-arancio">Nuova</span>' : '') + '</div>' +
+        '<span class="muted" style="font-size:13px">' + esc(x.quando) + '</span>' +
+        '<span style="font-size:14px;line-height:1.4">' + esc(x.testo) + '</span></div>';
+    };
+    var gruppo = function (titolo, classe, elenco) {
+      if (!elenco.length) return '';
+      return '<div style="display:flex;flex-direction:column;gap:8px"><span class="chip ' + classe + '" style="align-self:flex-start">' + titolo + ' · ' + elenco.length + '</span>' +
+        elenco.map(voce).join('') + '</div>';
+    };
+    var di = function (e) { return lista.filter(function (x) { return x.esito === e; }); };
+    var testa = '<button class="segn-apri" data-a="segn-apri" aria-expanded="' + (S.segnAperte ? 'true' : 'false') + '">' +
+      '<span class="etichetta" style="flex:1;text-align:left">Notifiche</span>' +
+      (nuove ? '<span class="pallino-rosso">' + nuove + (nuove === 1 ? ' nuova' : ' nuove') + '</span>' : '<span class="muted" style="font-size:13px">' + lista.length + '</span>') +
+      '<span class="segn-freccia' + (S.segnAperte ? ' su' : '') + '" aria-hidden="true">›</span></button>';
+    return '<section class="card" style="padding:12px 16px;display:flex;flex-direction:column;gap:12px" aria-label="Le tue notifiche">' + testa +
+      (S.segnAperte ? gruppo('Approvate', 'chip-verde', di('approvata')) + gruppo('Non approvate', 'chip-rosso', di('rifiutata')) + gruppo('Altri avvisi', 'chip-grigio', di('avviso')) : '') +
+      '</section>';
+  }
+   
+  function apriChiudiNotifiche() {
+    S.segnAperte = !S.segnAperte;
+    if (S.segnAperte && S.d) {
+      var visti = vistiNotifiche();
+      S.nuoveViste = {};
+      (S.d.notifiche || []).forEach(function (x) { if (!visti[x.id]) S.nuoveViste[x.id] = true; visti[x.id] = true; });
+      try { salvaMem('tm_visti', JSON.stringify(Object.keys(visti).slice(-80))); } catch (e) {}
+    } else {
+      S.nuoveViste = {};
+    }
+    disegna();
+  }
+
+  function disegna() {
+    app.innerHTML = VISTE[S.schermata]();
+    if (S.schermata === 'home' && S.d && S.d.prossimo) preparaPosizione();
+  }
+
+   
+
+  function oggiLocale() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+   
+  function minutiAdesso() {
+    if (S.base) return (S.base.minuti + Math.floor((Date.now() - S.base.client) / 60000)) % 1440;
+    var d = new Date();
+    return d.getHours() * 60 + d.getMinutes();
+  }
+  function testoOra(m) { return ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + (m % 60)).slice(-2); }
+  function ricordaDati(r) {
+    if (r && typeof r.orologio === 'number') S.base = { minuti: r.orologio, client: Date.now() };
+    S.d = r;
+    try { window.localStorage.setItem('tm_stato', JSON.stringify(r)); } catch (e) {}
+  }
+  function datiRicordati() {
+    try {
+      var r = JSON.parse(window.localStorage.getItem('tm_stato') || 'null');
+      return r && r.oggi === oggiLocale() ? r : null;
+    } catch (e) { return null; }
+  }
+
+  function caricaStato(silenzioso) {
+    var c = codice();
+    if (!c) { if (!silenzioso) vai('accesso'); return Promise.resolve(); }
+    if (!silenzioso) vai('carico');
+    var sospesa = leggiSospesa();
+    return chiama('stato', cred({ sospeso: sospesa ? sospesa.id : '' })).then(function (r) {
+      if (r.ok && r.sospeso) {
+        S.messaggio = r.sospeso.registrata ? 'La tua ultima timbratura (' + r.sospeso.tipo.toLowerCase() + ' alle ' + r.sospeso.ora + ') è stata registrata.'
+          : 'L\'ultima timbratura non è arrivata al server: se serve, timbra di nuovo.';
+        togliSospesa();
+      }
+      if (r.ok) { ricordaDati(r); if (r.serveInformativa) { if (S.schermata !== 'informativa') vai('informativa'); } else if (!silenzioso || S.schermata === 'home') vai('home'); }
+      else serveAccesso(r);
+    }).catch(function (e) {
+      if (!silenzioso) { S.problema = { tipo: 'errore', messaggio: testoErrore(e) }; vai('problema'); }
+    });
+  }
+
+   
+  var ACCESSO = { codice: true, pin: true, accesso: true, dispositivo: true, 'altro-telefono': true, computer: true };
+  function serveAccesso(r) {
+    togliMem('tm_stato');
+    if (r.motivo === 'codice') { togliMem('tm_cod'); togliMem('tm_disp'); S.codiceAccesso = ''; }
+    else S.codiceAccesso = codice();
+    if (r.motivo === 'dispositivo') togliMem('tm_disp');
+    S.nomeAccesso = r.nome || '';
+    S.erroreAccesso = r.motivo === 'accesso' || r.motivo === 'pin' ? '' : r.messaggio;
+    S.infoAccesso = r.motivo === 'accesso' ? r.messaggio : r.motivo === 'dispositivo' ? r.messaggio : '';
+    if (r.motivo === 'altro-telefono') { S.erroreAccesso = ''; S.infoRecupero = r.messaggio; vai('recupero'); return; }
+    if (r.motivo === 'computer') { vai('computer'); return; }
+    vai(r.motivo === 'pin' ? 'scegli-pin' : 'accesso');
+  }
+
+  function soloCifre(id) { var c = document.getElementById(id); return (c && c.value || '').replace(/\D/g, ''); }
+
+  function entrato(r, c, messaggio) {
+    salvaMem('tm_cod', c);
+    if (r.dispositivo) salvaMem('tm_disp', r.dispositivo);
+    S.erroreAccesso = ''; S.infoAccesso = ''; S.codiceAccesso = '';
+    ricordaDati(r);
+    S.messaggio = messaggio || 'Telefono collegato. Da ora timbri da qui.';
+    vai(r.serveInformativa ? 'informativa' : 'home');
+  }
+
+  function accedi() {
+    var c = soloCifre('codice') || S.codiceAccesso || codice();
+    var pin = soloCifre('pin');
+    if (c.length < 4) { S.erroreAccesso = 'Scrivi il codice personale.'; disegna(); return; }
+    if (pin.length && pin.length !== 6) { S.erroreAccesso = 'Il PIN ha 6 cifre.'; S.codiceAccesso = c; disegna(); return; }
+    S.occupato = true; S.erroreAccesso = ''; S.codiceAccesso = c; disegna();
+    chiama('accedi', cred({ codice: c, pin: pin, descrizione: descriviTelefono(), accetto: true })).then(function (r) {
+      S.occupato = false;
+      if (r.ok) entrato(r, c);
+      else if (r.motivo === 'pin-nuovo') { S.nomeAccesso = r.nome || ''; S.erroreAccesso = ''; vai('scegli-pin'); }
+      else if (r.motivo === 'altro-telefono') { S.nomeAccesso = r.nome || ''; S.erroreAccesso = ''; S.infoRecupero = r.messaggio; vai('recupero'); }
+      else if (r.motivo === 'computer') vai('computer');
+      else { S.erroreAccesso = r.messaggio; vai('accesso'); }
+    }).catch(function (e) { S.occupato = false; S.erroreAccesso = testoErrore(e); vai('accesso'); });
+  }
+
+  function scegliPin() {
+    var c = S.codiceAccesso || codice();
+    var p1 = soloCifre('pin1'), p2 = soloCifre('pin2');
+    if (p1.length !== 6) { S.erroreAccesso = 'Il PIN deve avere 6 cifre.'; disegna(); return; }
+    if (p1 !== p2) { S.erroreAccesso = 'I due PIN non sono uguali.'; disegna(); return; }
+    S.occupato = true; S.erroreAccesso = ''; disegna();
+    chiama('accedi', cred({ codice: c, nuovoPin: p1, descrizione: descriviTelefono(), accetto: true })).then(function (r) {
+      S.occupato = false;
+      if (r.ok) entrato(r, c, 'Fatto: questo telefono è registrato a te e il PIN è salvato. Tienilo per te: serve se il telefono perde i dati.');
+      else if (r.motivo === 'altro-telefono') { S.erroreAccesso = ''; S.infoRecupero = r.messaggio; vai('recupero'); }
+      else if (r.motivo === 'computer') vai('computer');
+      else { S.erroreAccesso = r.messaggio; vai(r.motivo === 'pin-nuovo' ? 'scegli-pin' : 'accesso'); }
+    }).catch(function (e) { S.occupato = false; S.erroreAccesso = testoErrore(e); disegna(); });
+  }
+
+  function recuperaPin() {
+    var c = soloCifre('rec-codice') || S.codiceAccesso || codice();
+    var rec = ((document.getElementById('rec-chiave') || {}).value || '').replace(/\s/g, '').toUpperCase();
+    var p1 = soloCifre('rec-pin1'), p2 = soloCifre('rec-pin2');
+    if (c.length < 4 || rec.length < 6) { S.erroreAccesso = 'Scrivi il codice personale e il codice di registrazione.'; disegna(); return; }
+    if (p1.length !== 6 || p1 !== p2) { S.erroreAccesso = 'Scrivi due volte lo stesso PIN di 6 cifre.'; disegna(); return; }
+    S.occupato = true; S.erroreAccesso = ''; disegna();
+    chiama('recuperaPin', cred({ codice: c, recupero: rec, nuovoPin: p1, descrizione: descriviTelefono() })).then(function (r) {
+      S.occupato = false;
+      if (r.ok) { S.infoRecupero = ''; entrato(r, c, 'Telefono registrato: da ora timbri da qui. Il telefono vecchio non funziona più.'); }
+      else if (r.motivo === 'computer') vai('computer');
+      else { S.erroreAccesso = r.messaggio; disegna(); }
+    }).catch(function (e) { S.occupato = false; S.erroreAccesso = testoErrore(e); disegna(); });
+  }
+
+  
+
+  var POS = { ultima: null, quando: 0, watch: null, timer: null };
+  function preparaPosizione() {
+    if (!navigator.geolocation || POS.watch !== null || POS.controllo) return;
+    POS.controllo = true;
+    var avvia = function () {
+      POS.controllo = false;
+      if (POS.watch !== null || S.schermata !== 'home') return;
+      try {
+        POS.watch = navigator.geolocation.watchPosition(function (p) {
+          var nuova = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy };
+          if (!POS.ultima || nuova.acc <= POS.ultima.acc || Date.now() - POS.quando > 8000) { POS.ultima = nuova; POS.quando = Date.now(); }
+        }, function (err) { if (err && err.code === 1) fermaPosizione(); }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
+      } catch (e) { POS.watch = null; return; }
+      clearTimeout(POS.timer);
+      POS.timer = setTimeout(fermaPosizione, 120000);
+    };
+    try {
+      if (navigator.permissions && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'geolocation' }).then(function (st) {
+          if (st.state === 'granted') avvia(); else POS.controllo = false;
+        }, function () { avvia(); });
+        return;
+      }
+    } catch (e) {   }
+    avvia();
+  }
+  function fermaPosizione() {
+    if (POS.watch !== null) { try { navigator.geolocation.clearWatch(POS.watch); } catch (e) {} }
+    POS.watch = null;
+    clearTimeout(POS.timer);
+  }
+   
+  function posizionePronta() {
+    return POS.ultima && Date.now() - POS.quando < 30000 && POS.ultima.acc <= 150 ? POS.ultima : null;
+  }
+
+   
+  function leggiPosizione() {
+    function chiedi(opzioni) {
+      return new Promise(function (ok) {
+        navigator.geolocation.getCurrentPosition(function (p) {
+          ok({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy });
+        }, function (err) {
+          ok({ errore: err && err.code === 1 ? 'negato' : err && err.code === 3 ? 'tempo' : 'nd' });
+        }, opzioni);
+      });
+    }
+    if (!navigator.geolocation) return Promise.resolve({ errore: 'nd' });
+    return chiedi({ enableHighAccuracy: false, timeout: 5000, maximumAge: 0 }).then(function (veloce) {
+      if (!veloce.errore && veloce.acc <= 150) return veloce;
+      if (veloce.errore === 'negato') return veloce;
+      return chiedi({ enableHighAccuracy: true, timeout: 12000, maximumAge: 5000 }).then(function (precisa) {
+        return precisa.errore && !veloce.errore ? veloce : precisa;
+      });
+    });
+  }
+
+  function avviaTimbratura() {
+    if (S.occupato || !S.d || !S.d.prossimo) return;
+    var p = S.d.prossimo;
+    if (S.tipoScelto === 'Uscita' && p.tipo !== 'Uscita') p = { tipo: 'Uscita', serveFoto: false, fotoObbligatoria: false };
+    if (S.accettoTogli === null) {
+      var anticipo = calcolaAnticipo(p);
+      if (anticipo) { S.anticipo = anticipo; S.tipo = p.tipo; vai('anticipo'); return; }
+    }
+    S.occupato = true; S.messaggio = ''; S.tipo = p.tipo; S.problemaFoto = ''; S.fotoObbligatoria = !!p.fotoObbligatoria;
+    if (!S.richiesta) S.richiesta = nuovaRichiesta();
+    S.controlli = { posizione: 'run', telefono: 'wait', orario: 'wait' };
+    var pronta = posizionePronta();
+    vai('verifica');
+    (pronta ? Promise.resolve(pronta) : leggiPosizione()).then(function (pos) {
+      S.posizione = pos;
+      if (p.serveFoto && !pos.errore) { S.occupato = false; vai('selfie'); return; }
+      invia(null);
+    });
+  }
+
+  
+
+  function calcolaAnticipo(p) {
+    var u = p && p.tipo === 'Uscita' ? p.uscita : null;
+    if (!u) return null;
+    var ora = minutiAdesso();
+    if (ora >= u.limite) return null;
+    var da = Math.max(ora, u.inizio);
+    var persi = Math.max(0, u.limite - da);
+    if (u.pausa) persi -= Math.max(0, Math.min(u.limite, u.pausa[1]) - Math.max(da, u.pausa[0]));
+    if (persi <= 0) return null;
+    var blocco = Math.max(1, u.blocco || 1);
+    return { ora: testoOra(ora), limite: u.limiteTesto,
+      tolti: Math.ceil(persi / blocco) * blocco, blocco: blocco, daServer: false };
+  }
+
+  function durataTesto(m) {
+    m = Math.round(m || 0);
+    return m < 60 ? m + ' min' : Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + ('0' + (m % 60)).slice(-2) : '');
+  }
+
+  function azzeraAnticipo() { S.anticipo = null; S.accettoTogli = null; S.ultimaFoto = null; }
+
+  function invia(foto) {
+    S.occupato = true;
+    S.ultimaFoto = foto || null;
+    S.controlli = { posizione: 'run', telefono: 'run', orario: 'run' };
+    vai('verifica');
+    if (!S.richiesta) S.richiesta = nuovaRichiesta();
+    segnaSospesa(S.richiesta, S.tipo);
+    chiamaConRiprova('timbra', cred({ atteso: S.tipo, posizione: S.posizione, foto: foto, accettoTogli: S.accettoTogli, richiesta: S.richiesta,
+        tipoScelto: S.tipoScelto || '', motivoUscita: S.vaVia && S.tipoScelto ? S.vaVia.motivo : '', notaUscita: S.vaVia && S.tipoScelto ? S.vaVia.nota : '' }))
+      .then(mostraEsito)
+      .catch(function (e) {
+        
+        S.occupato = false; S.erroreInvio = testoErrore(e); vai('errore-invio');
+      });
+  }
+
+  function mostraEsito(r) {
+    var c = r.controlli || {};
+    var finale = {
+      posizione: c.posizione || (r.ok ? 'ok' : 'wait'),
+      telefono: (r.motivo === 'fuori' || r.motivo === 'posizione' || r.motivo === 'presto') ? 'wait' : (c.telefono || 'ok'),
+      orario: (r.motivo === 'fuori' || r.motivo === 'posizione') ? 'wait' : (c.orario || 'ok')
+    };
+    if (r.motivo === 'presto') finale.posizione = 'wait';
+    if (!r.ok && !r.controlli) { dopoControlli(r); return; }
+    S.controlli = finale;
+    disegna();
+    setTimeout(function () { dopoControlli(r); }, r.ok ? 150 : 450);
+  }
+
+  function dopoControlli(r) {
+    S.occupato = false;
+    togliSospesa();
+    if (ACCESSO[r.motivo]) { S.richiesta = null; serveAccesso(r); return; }
+    if (r.motivo !== 'anticipo') S.richiesta = null;
+    if (r.motivo === 'anticipo') {
+      
+      var blocco = S.d && S.d.prossimo && S.d.prossimo.uscita ? S.d.prossimo.uscita.blocco : 1;
+      S.anticipo = { ora: r.ora, limite: r.limite, tolti: r.tolti, blocco: blocco, daServer: true };
+      S.accettoTogli = null;
+      vai('anticipo');
+      return;
+    }
+    azzeraAnticipo();
+    if (r.ok) {
+      if (S.tipoScelto && S.vaVia && S.vaVia.motivo === 'Non sto bene') r.consiglio = 'Riguardati! Se domani non puoi venire, manda la malattia da «Ferie e permessi».';
+      S.tipoScelto = null; S.vaVia = null;
+      S.esito = r;
+      fermaPosizione(); POS.ultima = null;
+      vai('fatto');
+      caricaStato(true);
+      try { window.localStorage.removeItem('tm_stato'); } catch (e) {}
+      return;
+    }
+    if (r.motivo === 'codice') { togliMem('tm_cod'); S.erroreAccesso = r.messaggio; vai('accesso'); return; }
+    if (r.motivo === 'cambiato' || r.motivo === 'finito' || r.motivo === 'riposo' || r.motivo === 'doppia') { S.messaggio = r.messaggio; caricaStato(false); return; }
+    var tipo = r.motivo === 'fuori' ? 'fuori' : r.motivo === 'posizione' ? 'posizione' : r.motivo === 'presto' ? 'presto' : 'errore';
+    S.problema = { tipo: tipo, messaggio: r.messaggio || 'Riprova tra poco.', posizione: r.posizione || '', assistita: !!r.assistita };
+    vai('problema');
+  }
+
+  function comprimiFoto(file) {
+    return new Promise(function (ok, ko) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var max = 720;
+        var k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.naturalWidth * k);
+        canvas.height = Math.round(img.naturalHeight * k);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        ok(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); ko(new Error('Non riesco a leggere la foto.')); };
+      img.src = url;
+    });
+  }
+
+  var inputFoto = document.getElementById('foto-input');
+  inputFoto.addEventListener('change', function () {
+    var f = inputFoto.files && inputFoto.files[0];
+    inputFoto.value = '';
+    if (!f) return;
+    S.occupato = true; disegna();
+    comprimiFoto(f).then(function (dataUrl) { invia(dataUrl); })
+      .catch(function (e) { S.occupato = false; S.problemaFoto = testoErrore(e) + ' Riprova.'; disegna(); });
+  });
+
+  function apriManuale() {
+    var d = S.d;
+    var hh = testoOra(minutiAdesso());
+    S.ric = {
+      tipo: (d.prossimo && d.prossimo.tipo) || d.tipiRichiesta[d.tipiRichiesta.length - 1],
+      data: d.oggi, ora: hh, motivo: '', categoria: '', nota: '', allegato: ''
+    };
+    S.ricErrore = '';
+    vai('manuale');
+  }
+
+  function inviaRichiesta() {
+    var q = S.ric;
+    if (!q.ora) { S.ricErrore = "Scrivi l'orario."; disegna(); return; }
+    if (!String(q.nota || '').trim()) { S.ricErrore = 'Scrivi la motivazione.'; disegna(); return; }
+    S.occupato = true; S.ricErrore = ''; disegna();
+    chiama('richiesta', cred({ tipo: q.tipo, data: q.data, ora: q.ora, nota: q.nota, allegato: q.allegato || '' }))
+      .then(function (r) {
+        S.occupato = false;
+        if (r.ok) { S.ricRiepilogo = r.riepilogo; vai('inviata'); }
+        else if (ACCESSO[r.motivo]) serveAccesso(r);
+        else { S.ricErrore = r.messaggio; disegna(); }
+      })
+      .catch(function (e) { S.occupato = false; S.ricErrore = testoErrore(e); disegna(); });
+  }
+
+  function apriStorico(mese) {
+    S.storico = null; S.storicoErrore = ''; S.contesta = null; S.contestaErrore = '';
+    vai('storico');
+    chiama('storico', cred({ mese: mese || '' })).then(function (r) {
+      if (r.ok) { S.storico = r; disegna(); }
+      else if (ACCESSO[r.motivo]) serveAccesso(r);
+      else { S.storicoErrore = r.messaggio || 'Riprova.'; disegna(); }
+    }).catch(function (e) { S.storicoErrore = testoErrore(e); disegna(); });
+  }
+
+  function apriNuovaAssenza() {
+    S.ass = { tipo: 'Ferie', dal: S.d.oggi, al: S.d.oggi, ora: '', nota: '' };
+    S.assErrore = '';
+    vai('nuova-assenza');
+  }
+
+  function inviaAssenza() {
+    var q = S.ass;
+    S.occupato = true; S.assErrore = ''; disegna();
+    chiama('richiestaAssenza', cred({ tipo: q.tipo, dal: q.dal, al: q.al, ora: q.ora, nota: q.nota }))
+      .then(function (r) {
+        S.occupato = false;
+        if (r.ok) { ricordaDati(r); S.assMessaggio = 'Richiesta inviata: ' + q.tipo.toLowerCase() + ' ' + r.inviata + '.'; vai('assenze'); }
+        else if (ACCESSO[r.motivo]) serveAccesso(r);
+        else { S.assErrore = r.messaggio; disegna(); }
+      })
+      .catch(function (e) { S.occupato = false; S.assErrore = testoErrore(e); disegna(); });
+  }
+
+  var AZIONI = {
+    'segn-apri': apriChiudiNotifiche,
+    accedi: accedi,
+    accetta: function () {
+      S.occupato = true; S.messaggio = ''; disegna();
+      chiama('accettaInformativa', cred()).then(function (r) {
+        S.occupato = false;
+        if (r.ok) { ricordaDati(r); vai('home'); }
+        else serveAccesso(r);
+      }).catch(function (e) { S.occupato = false; S.messaggio = testoErrore(e); disegna(); });
+    },
+    assenze: function () { S.assMessaggio = ''; vai('assenze'); },
+    'nuova-assenza': apriNuovaAssenza,
+    'ass-tipo': function (el) { S.ass.tipo = el.getAttribute('data-v'); S.assErrore = ''; disegna(); },
+    'invia-assenza': inviaAssenza,
+    'conferma-mese': function (el) {
+      var mese = el.getAttribute('data-v');
+      S.occupato = true; S.storicoErrore = ''; disegna();
+      chiama('confermaMese', cred({ mese: mese })).then(function (r) {
+        S.occupato = false;
+        if (r.ok) { S.storico = r; disegna(); }
+        else if (ACCESSO[r.motivo]) serveAccesso(r);
+        else { S.storicoErrore = r.messaggio; disegna(); }
+      }).catch(function (e) { S.occupato = false; S.storicoErrore = testoErrore(e); disegna(); });
+    },
+    'contesta-apri': function () { S.contesta = { motivo: '' }; S.contestaErrore = ''; disegna(); var t = document.getElementById('contesta-motivo'); if (t) t.focus(); },
+    'contesta-chiudi': function () { S.contesta = null; disegna(); },
+    'contesta-invia': function () {
+      var motivo = (S.contesta && S.contesta.motivo || '').trim();
+      if (!motivo) { S.contestaErrore = 'Scrivi cosa non torna (giorno e orario).'; disegna(); return; }
+      S.occupato = true; S.contestaErrore = ''; disegna();
+      chiama('contestaMese', cred({ mese: S.storico.mese, motivo: motivo })).then(function (r) {
+        S.occupato = false;
+        if (r.ok) { S.storico = r; S.contesta = null; disegna(); }
+        else if (ACCESSO[r.motivo]) serveAccesso(r);
+        else { S.contestaErrore = r.messaggio; disegna(); }
+      }).catch(function (e) { S.occupato = false; S.contestaErrore = testoErrore(e); disegna(); });
+    },
+    'pdf-mese': function (el) {
+      var mese = el.getAttribute('data-v');
+      S.pdf = { mese: mese, carico: true }; S.occupato = true; disegna();
+      chiama('pdfMese', cred({ mese: mese })).then(function (r) {
+        S.occupato = false;
+        if (!r.ok) { if (ACCESSO[r.motivo]) return serveAccesso(r); S.pdf = { mese: mese, errore: r.messaggio || 'PDF non disponibile.' }; disegna(); return; }
+        var url = r.pdf;
+        try {
+          var bin = atob(r.pdf.split(',')[1]), arr = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+          url = URL.createObjectURL(new Blob([arr], { type: 'application/pdf' }));
+        } catch (e) {}
+        S.pdf = { mese: mese, url: url, nome: r.nome }; disegna();
+      }).catch(function (e) { S.occupato = false; S.pdf = { mese: mese, errore: testoErrore(e) }; disegna(); });
+    },
+    privacy: function () {
+      S.pv = { tipo: 'Accesso ai miei dati', testo: '' };
+      vai('privacy');
+      chiama('privacy', cred()).then(function (r) {
+        if (r.ok) { S.pv.dati = r; S.pv.tipo = r.tipi[0]; disegna(); }
+        else if (ACCESSO[r.motivo]) serveAccesso(r);
+        else { S.pv.errore = r.messaggio || 'Riprova.'; disegna(); }
+      }).catch(function (e) { S.pv.errore = testoErrore(e); disegna(); });
+    },
+    'pv-invia': function () {
+      var pv = S.pv;
+      S.occupato = true; pv.errore = ''; pv.messaggio = ''; disegna();
+      chiama('richiestaPrivacy', cred({ tipo: pv.tipo, testo: pv.testo })).then(function (r) {
+        S.occupato = false;
+        if (r.ok) { pv.dati = r; pv.testo = ''; pv.messaggio = r.messaggio; disegna(); }
+        else if (ACCESSO[r.motivo]) serveAccesso(r);
+        else { pv.errore = r.messaggio; disegna(); }
+      }).catch(function (e) { S.occupato = false; pv.errore = testoErrore(e); disegna(); });
+    },
+    'pv-dati': function () {
+      var pv = S.pv;
+      S.occupato = true; pv.carico = true; pv.errore = ''; disegna();
+      chiama('mieiDati', cred()).then(function (r) {
+        S.occupato = false; pv.carico = false;
+        if (!r.ok) { if (ACCESSO[r.motivo]) return serveAccesso(r); pv.errore = r.messaggio; disegna(); return; }
+        var url = r.file;
+        try {
+          var bin = atob(r.file.split(',')[1]), arr = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+          url = URL.createObjectURL(new Blob([arr], { type: 'text/csv' }));
+        } catch (e) {}
+        pv.file = { url: url, nome: r.nome }; disegna();
+      }).catch(function (e) { S.occupato = false; pv.carico = false; pv.errore = testoErrore(e); disegna(); });
+    },
+    storico: function () { apriStorico(''); },
+    mese: function (el) { var m = el.getAttribute('data-v'); if (m) apriStorico(m); },
+    timbra: avviaTimbratura,
+    scatta: function () { if (!S.occupato) { S.problemaFoto = ''; inputFoto.click(); } },
+    'senza-foto': function () { if (!S.occupato) invia(null); },
+    assistita: function () {
+      if (S.occupato) return;
+      S.occupato = true; disegna();
+      chiamaConRiprova('timbraturaAssistita', cred({ motivo: S.problema && S.problema.posizione === 'impreciso' ? 'impreciso' : 'gps' })).then(function (r) {
+        S.occupato = false;
+        if (r.ok) { S.messaggio = r.messaggio; vai('home'); caricaStato(true); }
+        else if (ACCESSO[r.motivo]) serveAccesso(r);
+        else { S.problema = { tipo: 'errore', messaggio: r.messaggio }; vai('problema'); }
+      }).catch(function (e) { S.occupato = false; S.problema = { tipo: 'errore', messaggio: testoErrore(e) }; vai('problema'); });
+    },
+    'scegli-pin': function () { if (!S.occupato) scegliPin(); },
+    'recupera-pin': function () { if (!S.occupato) recuperaPin(); },
+    'vai-recupero': function () { S.codiceAccesso = soloCifre('codice') || S.codiceAccesso; S.erroreAccesso = ''; S.infoRecupero = ''; vai('recupero'); },
+    'vai-accesso': function () { S.erroreAccesso = ''; vai('accesso'); },
+    'riprova-invio': function () { if (!S.occupato) invia(S.ultimaFoto); },
+    'annulla-invio': function () { togliSospesa(); S.richiesta = null; azzeraAnticipo(); S.tipoScelto = null; S.vaVia = null; vai('home'); caricaStato(true); },
+    'anticipo-si': function () {
+      if (S.occupato || !S.anticipo) return;
+      S.accettoTogli = S.anticipo.tolti;
+      if (S.anticipo.daServer && S.posizione) invia(S.ultimaFoto);   
+      else avviaTimbratura();
+    },
+    'anticipo-no': function () { azzeraAnticipo(); S.tipoScelto = null; S.vaVia = null; S.messaggio = ''; if (S.d) vai('home'); },
+    home: function () { azzeraAnticipo(); S.tipoScelto = null; S.vaVia = null; S.messaggio = ''; if (S.d) vai('home'); caricaStato(!!S.d); },
+    'va-via': function () { S.vaVia = { motivo: '', nota: '', errore: '' }; vai('va-via'); },
+    'va-via-motivo': function (el) { S.vaVia.motivo = el.getAttribute('data-v'); S.vaVia.errore = ''; disegna(); },
+    'va-via-ok': function () {
+      if (!S.vaVia || !S.vaVia.motivo) { S.vaVia.errore = 'Scegli il motivo: il responsabile lo vede.'; disegna(); return; }
+      S.tipoScelto = 'Uscita'; S.accettoTogli = null;
+      avviaTimbratura();
+    },
+    ricarica: function () { caricaStato(false); },
+    manuale: apriManuale,
+    'ric-tipo': function (el) { S.ric.tipo = el.getAttribute('data-v'); disegna(); },
+    'ric-categoria': function (el) {
+      var c = el.getAttribute('data-v');
+      S.ric.categoria = c;
+      var tipi = S.d.tipiRichiesta || [];
+      if (c === 'Entrata dimenticata' && tipi.indexOf('Entrata') >= 0) S.ric.tipo = 'Entrata';
+      if (c === 'Uscita dimenticata' && tipi.indexOf('Uscita') >= 0) S.ric.tipo = 'Uscita';
+      if (c === 'Pausa dimenticata' && tipi.indexOf('Inizio pausa') >= 0 && S.ric.tipo !== 'Fine pausa') S.ric.tipo = 'Inizio pausa';
+      disegna();
+    },
+    rispondi: function (el) { S.rispondi = el.getAttribute('data-id'); disegna(); },
+    'invia-risposta': function (el) {
+      var testo = ((document.getElementById('risp-testo') || {}).value || '').trim();
+      if (!testo) { S.ricErrore = 'Scrivi la tua risposta.'; disegna(); return; }
+      S.occupato = true; disegna();
+      chiama('rispostaChiarimento', cred({ id: el.getAttribute('data-id'), testo: testo })).then(function (r) {
+        S.occupato = false;
+        if (r.ok) { S.rispondi = ''; S.d.richieste = r.richieste; S.ricErrore = ''; S.messaggio = r.messaggio; disegna(); }
+        else if (ACCESSO[r.motivo]) serveAccesso(r);
+        else { S.ricErrore = r.messaggio; disegna(); }
+      }).catch(function (e) { S.occupato = false; S.ricErrore = testoErrore(e); disegna(); });
+    },
+    'ric-motivo': function (el) { S.ric.motivo = el.getAttribute('data-v'); disegna(); },
+    'invia-richiesta': inviaRichiesta,
+    esci: function () { togliMem('tm_cod'); togliMem('tm_stato'); S.d = null; S.erroreAccesso = ''; vai('accesso'); }
+  };
+
+  app.addEventListener('click', function (ev) {
+    var el = ev.target.closest('[data-a]');
+    if (!el || el.disabled) return;
+    ev.preventDefault();
+    var fn = AZIONI[el.getAttribute('data-a')];
+    if (fn) fn(el);
+  });
+  app.addEventListener('input', function (ev) {
+    var c = ev.target.getAttribute && ev.target.getAttribute('data-c');
+    if (c) S.ric[c] = ev.target.value;
+    if (ev.target.getAttribute && ev.target.getAttribute('data-contesta') && S.contesta) S.contesta.motivo = ev.target.value;
+    if (ev.target.getAttribute && ev.target.getAttribute('data-vavia') && S.vaVia) S.vaVia.nota = ev.target.value;
+    var pvc = ev.target.getAttribute && ev.target.getAttribute('data-pv');
+    if (pvc && S.pv) S.pv[pvc] = ev.target.value;
+    var a = ev.target.getAttribute && ev.target.getAttribute('data-ass');
+    if (a) { S.ass[a] = ev.target.value; if (a === 'dal' && (!S.ass.al || S.ass.al < S.ass.dal)) S.ass.al = S.ass.dal; }
+  });
+  app.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (ev.target.id === 'form-accesso') accedi();
+    if (ev.target.id === 'form-pin') scegliPin();
+    if (ev.target.id === 'form-recupero') recuperaPin();
+  });
+  app.addEventListener('change', function (ev) {
+    if (ev.target.id === 'ric-allegato') {
+      var f = ev.target.files && ev.target.files[0];
+      if (f) comprimiFoto(f).then(function (url) { S.ric.allegato = url; disegna(); }).catch(function () { S.ricErrore = 'Non riesco a leggere la foto.'; disegna(); });
+      return;
+    }
+    if (ev.target.getAttribute && ev.target.getAttribute('data-ass') === 'dal') disegna();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && S.schermata === 'home') { caricaStato(true); preparaPosizione(); }
+    if (document.visibilityState === 'hidden') fermaPosizione();
+  });
+
+  
+  try {
+    var tr = /[#&]trasloco=([A-Za-z0-9_-]+)/.exec(location.hash || '');
+    if (tr && SERVER) {
+      var dati = JSON.parse(decodeURIComponent(escape(atob(tr[1].replace(/-/g, '+').replace(/_/g, '/')))));
+      if (dati && dati.c && dati.d && dati.t) { salvaMem('tm_cod', dati.c); salvaMem('tm_disp', dati.d); salvaMem('tm_tel', dati.t); togliMem('tm_stato'); }
+    }
+    if (tr) history.replaceState(null, '', location.pathname + location.search);
+  } catch (e) {   }
+  
+  if (apparecchio() !== 'telefono') { vai('computer'); return; }
+  
+  var ricordati = codice() ? datiRicordati() : null;
+  if (ricordati) {
+    S.d = ricordati;
+    vai(ricordati.serveInformativa ? 'informativa' : 'home');
+    caricaStato(true);
+  } else {
+    caricaStato(false);
+  }
+})();
+</script>
+</body>
+</html>
