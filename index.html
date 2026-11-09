@@ -517,7 +517,7 @@
         (p.tipo === 'errore' ? '<button class="btn btn-blu" data-a="ricarica">Riprova</button>' : '') +
         (p.assistita ? '<button class="btn btn-bordo" data-a="assistita"' + (S.occupato ? ' disabled' : '') + '>Chiedi timbratura assistita</button>' +
           '<span class="muted" style="font-size:13px;line-height:1.35;text-align:center">Il responsabile verifica che sei al lavoro e registra l\'orario di adesso. Non resti mai bloccato per il GPS.</span>' : '') +
-        (p.tipo === 'fuori' ? '<button class="btn btn-bordo" data-a="manuale">Invia una richiesta al responsabile</button>' : '') +
+        (p.tipo === 'fuori' && !p.soloRiprova ? '<button class="btn btn-bordo" data-a="manuale">Invia una richiesta al responsabile</button>' : '') +
         '<button class="btn btn-testo" data-a="home">Torna all\'inizio</button>';
     },
 
@@ -965,7 +965,7 @@
     var u = p && p.tipo === 'Uscita' ? p.uscita : null;
     if (!u) return null;
     var ora = minutiAdesso();
-    if (ora >= u.limite) return null;
+    if (ora >= u.limite - (u.tolleranza || 0)) return null;   
     var da = Math.max(ora, u.inizio);
     var persi = Math.max(0, u.limite - da);
     if (u.pausa) persi -= Math.max(0, Math.min(u.limite, u.pausa[1]) - Math.max(da, u.pausa[0]));
@@ -1039,7 +1039,7 @@
     if (r.motivo === 'codice') { togliMem('tm_cod'); S.erroreAccesso = r.messaggio; vai('accesso'); return; }
     if (r.motivo === 'cambiato' || r.motivo === 'finito' || r.motivo === 'riposo' || r.motivo === 'doppia') { S.messaggio = r.messaggio; caricaStato(false); return; }
     var tipo = r.motivo === 'fuori' ? 'fuori' : r.motivo === 'posizione' ? 'posizione' : r.motivo === 'presto' ? 'presto' : 'errore';
-    S.problema = { tipo: tipo, messaggio: r.messaggio || 'Riprova tra poco.', posizione: r.posizione || '', assistita: !!r.assistita };
+    S.problema = { tipo: tipo, messaggio: r.messaggio || 'Riprova tra poco.', posizione: r.posizione || '', assistita: !!r.assistita, soloRiprova: !!r.soloRiprova };
     vai('problema');
   }
 
