@@ -53,6 +53,7 @@
   .scelta { min-height: 46px; border-radius: 12px; border: 1px solid var(--ink); background: #fff; color: var(--ink); font-size: 15px; font-weight: 600; padding: 0 14px; }
   .pillola { border-radius: 999px; min-height: 44px; }
   .scelta[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .scelta[disabled] { opacity: .4; border-style: dashed; }
   .celle { display: grid; gap: 8px; }
   .cella { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .cella span:first-child { font-size: 13px; color: var(--muted); font-weight: 500; }
@@ -548,8 +549,9 @@
 
     manuale: function () {
       var d = S.d, q = S.ric;
+      var giaFatta = function (t) { return q.data === d.oggi && (d.fatteOggi || []).indexOf(t) >= 0; };
       var tipi = d.tipiRichiesta.map(function (t) {
-        return '<button type="button" class="scelta" aria-pressed="' + (q.tipo === t) + '" data-a="ric-tipo" data-v="' + esc(t) + '">' + esc(t) + '</button>';
+        return '<button type="button" class="scelta" aria-pressed="' + (q.tipo === t) + '" data-a="ric-tipo" data-v="' + esc(t) + '"' + (giaFatta(t) ? ' disabled title="Già timbrata oggi"' : '') + '>' + esc(t) + (giaFatta(t) ? ' <span class="muted" style="font-size:12px">· fatta</span>' : '') + '</button>';
       }).join('');
       var min = new Date(Date.now() - 31 * 86400000);
       var minTesto = min.getFullYear() + '-' + ('0' + (min.getMonth() + 1)).slice(-2) + '-' + ('0' + min.getDate()).slice(-2);
@@ -1287,6 +1289,7 @@
   app.addEventListener('input', function (ev) {
     var c = ev.target.getAttribute && ev.target.getAttribute('data-c');
     if (c) S.ric[c] = ev.target.value;
+    if (c === 'data' && S.schermata === 'manuale') disegna();
     if (ev.target.getAttribute && ev.target.getAttribute('data-contesta') && S.contesta) S.contesta.motivo = ev.target.value;
     if (ev.target.getAttribute && ev.target.getAttribute('data-vavia') && S.vaVia) S.vaVia.nota = ev.target.value;
     var pvc = ev.target.getAttribute && ev.target.getAttribute('data-pv');
