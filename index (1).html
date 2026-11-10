@@ -175,10 +175,10 @@
     return id;
   }
   function codice() { return leggiMem('tm_cod'); }
-   
-  function linkTrasloco(indirizzo) {
-    var dati = btoa(unescape(encodeURIComponent(JSON.stringify({ c: codice(), d: leggiMem('tm_disp'), t: idTelefono() })))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    return indirizzo.split('#')[0] + '#trasloco=' + dati;
+  
+
+  function linkTrasloco(indirizzo, codiceTr) {
+    return indirizzo.split('#')[0] + '#trasloco=' + encodeURIComponent(codiceTr);
   }
   function segreto() { return leggiMem('tm_disp'); }
    
@@ -206,7 +206,8 @@
     var so = /iPhone|iPad|iPod/.test(u) ? 'iOS' : /Android/.test(u) ? 'Android' : /Windows/.test(u) ? 'Windows' : /Macintosh/.test(u) ? 'Mac' : /CrOS/.test(u) ? 'Chromebook' : /Linux/.test(u) ? 'Linux' : 'altro';
     return so + ' · schermo ' + (screen.width || 0) + 'x' + (screen.height || 0) + ' · tocco ' + (navigator.maxTouchPoints || 0);
   }
-  function cred(extra) { var o = { codice: codice(), dispositivo: segreto(), telefono: idTelefono(), apparecchio: apparecchio(), apparecchioInfo: infoApparecchio() }; Object.keys(extra || {}).forEach(function (k) { o[k] = extra[k]; }); return o; }
+  function cred(extra) { var o = { codice: codice(), dispositivo: segreto(), telefono: idTelefono(), apparecchio: apparecchio(), apparecchioInfo: infoApparecchio() };
+    if (!SERVER) o.chiediTrasloco = true; Object.keys(extra || {}).forEach(function (k) { o[k] = extra[k]; }); return o; }
   function descriviTelefono() { var u = navigator.userAgent || ''; return /iPhone/.test(u) ? 'iPhone' : /iPad/.test(u) ? 'iPad' : /Android/.test(u) ? (/(SM-|Samsung)/i.test(u) ? 'Samsung Android' : 'Android') : 'Browser'; }
 
   
@@ -378,7 +379,7 @@
         (S.messaggio ? '<div class="avviso avviso-blu" role="status">' + esc(S.messaggio) + '</div>' : '') +
         (d.avviso ? '<div class="avviso avviso-arancio" role="alert">' + ICONE.telefono + '<span>' + esc(d.avviso) + '</span></div>' : '') +
         (d.oggiPermesso ? '<div class="avviso avviso-blu">' + ICONE.lista + '<span>' + esc(d.oggiPermesso) + '</span></div>' : '') +
-        (d.indirizzoApp && !SERVER ? '<a class="avviso avviso-arancio" style="text-decoration:none;color:inherit;font-weight:600" href="' + esc(linkTrasloco(d.indirizzoApp)) + '" target="_blank" rel="noopener">' + ICONE.telefono + '<span>L\'app ha un nuovo indirizzo: tocca qui per aprirla (resti collegato) e poi aggiungila alla schermata Home.</span></a>' : '') +
+        (d.indirizzoApp && !SERVER && d.trasloco ? '<a class="avviso avviso-arancio" style="text-decoration:none;color:inherit;font-weight:600" href="' + esc(linkTrasloco(d.indirizzoApp, d.trasloco)) + '" target="_blank" rel="noopener">' + ICONE.telefono + '<span>L\'app ha un nuovo indirizzo: tocca qui per aprirla (resti collegato) e poi aggiungila alla schermata Home.</span></a>' : '') +
         (d.assistitaInAttesa ? '<div class="avviso avviso-arancio" role="status">' + ICONE.telefono + '<span>' + esc(d.assistitaInAttesa) + '</span></div>' : '') +
         segnalazioni(d) +
         (d.riposo ? '' : '<div class="card riga" style="padding:10px 12px;font-size:14px">' + ICONE.orologioP + '<span><strong style="font-weight:600">' + esc(d.orarioNome) + '</strong> · ' + esc(d.orarioDettaglio) + '</span></div>') +
@@ -965,7 +966,7 @@
     var u = p && p.tipo === 'Uscita' ? p.uscita : null;
     if (!u) return null;
     var ora = minutiAdesso();
-    if (ora >= u.limite) return null;
+    if (ora >= u.limite - (u.tolleranza || 0)) return null;   
     var da = Math.max(ora, u.inizio);
     var persi = Math.max(0, u.limite - da);
     if (u.pausa) persi -= Math.max(0, Math.min(u.limite, u.pausa[1]) - Math.max(da, u.pausa[0]));
@@ -1317,24 +1318,30 @@
   });
 
   
-  try {
-    var tr = /[#&]trasloco=([A-Za-z0-9_-]+)/.exec(location.hash || '');
-    if (tr && SERVER) {
-      var dati = JSON.parse(decodeURIComponent(escape(atob(tr[1].replace(/-/g, '+').replace(/_/g, '/')))));
-      if (dati && dati.c && dati.d && dati.t) { salvaMem('tm_cod', dati.c); salvaMem('tm_disp', dati.d); salvaMem('tm_tel', dati.t); togliMem('tm_stato'); }
-    }
-    if (tr) history.replaceState(null, '', location.pathname + location.search);
-  } catch (e) {   }
-  
   if (apparecchio() !== 'telefono') { vai('computer'); return; }
+  function avvia() {
+    
+    var ricordati = codice() ? datiRicordati() : null;
+    if (ricordati) {
+      S.d = ricordati;
+      vai(ricordati.serveInformativa ? 'informativa' : 'home');
+      caricaStato(true);
+    } else {
+      caricaStato(false);
+    }
+  }
   
-  var ricordati = codice() ? datiRicordati() : null;
-  if (ricordati) {
-    S.d = ricordati;
-    vai(ricordati.serveInformativa ? 'informativa' : 'home');
-    caricaStato(true);
+  var tr = /[#&]trasloco=([A-Za-z0-9_-]+)/.exec(location.hash || '');
+  if (tr) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+  if (tr && SERVER) {
+    vai('carico');
+    chiama('completaTrasloco', { trasloco: tr[1], telefono: idTelefono(), apparecchio: apparecchio(), descrizione: descriviTelefono() }).then(function (r) {
+      if (r && r.ok) { salvaMem('tm_cod', r.codice); salvaMem('tm_disp', r.dispositivo); togliMem('tm_stato'); }
+      else if (r && r.messaggio && !codice()) S.erroreAccesso = r.messaggio;
+      avvia();
+    }).catch(function () { avvia(); });
   } else {
-    caricaStato(false);
+    avvia();
   }
 })();
 </script>
